@@ -1,0 +1,22 @@
+# Python / Data Science
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints
+.venv
+venv/
+env/
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.npm/
+
+# Environment Variables
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
