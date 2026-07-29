@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  color-scheme: dark;
+  --color-navy: #0d1119;
+  --color-panel: #141b27;
+  --color-lift: #1a2336;
+  --color-wire: #242e40;
+  --color-amber: #f5a623;
+  --color-teal: #38a89d;
+  --color-chalk: #e8ebf2;
+  --color-mist: #c4cad9;
+  --color-slate: #7a8499;
+  --color-dim: #3d4a5f;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-label: 'Barlow', sans-serif;
+}
+
+@keyframes scanSweep {
+  0% { left: 0%; opacity: 0; }
+  4% { opacity: 0.9; }
+  78% { left: 72.9%; }
+  88% { left: 75.4%; }
+  100% { left: 72.9%; opacity: 0.75; }
+}
+
+@keyframes scanSettle {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes liveDot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-navy);
+  color: var(--color-chalk);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #242e40 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #242e40;
+  border-radius: 2px;
+}
+
+:focus-visible {
+  outline: 1px solid rgba(245, 166, 35, 0.5);
+  outline-offset: 2px;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  background: var(--color-panel);
+  border: 1px solid var(--color-wire);
+  color: var(--color-chalk);
+  border-radius: 4px;
+  transition: border-color 0.12s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(245, 166, 35, 0.45);
+}
