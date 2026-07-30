@@ -19,14 +19,31 @@
 }
 
 @keyframes scanSweep {
-  0% { left: 0%; opacity: 0; }
-  4% { opacity: 0.9; }
-  78% { left: 72.9%; }
-  88% { left: 75.4%; }
-  100% { left: 72.9%; opacity: 0.75; }
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+
+  4% {
+    opacity: 0.9;
+  }
+
+  78% {
+    left: 72.9%;
+  }
+
+  88% {
+    left: 75.4%;
+  }
+
+  100% {
+    left: 72.9%;
+    opacity: 0.75;
+  }
 }
 
 @keyframes scanSettle {
+
   0%,
   100% {
     opacity: 0.75;
@@ -38,6 +55,7 @@
 }
 
 @keyframes liveDot {
+
   0%,
   100% {
     opacity: 1;

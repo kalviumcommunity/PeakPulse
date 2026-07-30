@@ -1,0 +1,23 @@
+# --- Core Web Framework ---
+fastapi>=0.109.2
+uvicorn[standard]>=0.27.0
+
+# --- Data Validation & Settings ---
+pydantic>=2.6.1
+pydantic-settings>=2.2.1
+
+# --- File Parsing (Useful for Image Inference endpoints) ---
+python-multipart>=0.0.9
+
+# --- Database (Uncomment when needed) ---
+# sqlalchemy>=2.0.25
+# alembic>=1.13.1
+
+# --- Analytics & ML (Uncomment when needed) ---
+# numpy>=1.26.0
+# pandas>=2.2.0
+# pillow>=10.2.0
+
+# --- Testing & Utilities ---
+httpx>=0.27.0  # Required for FastAPI TestClient
+pytest>=8.0.0
