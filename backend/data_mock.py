@@ -1,6 +1,6 @@
 from schemas import Zone, Incident, MetricsSummary
 
-# Mock data directly reflecting the frontend static data
+# Mock data directly reflecting the frontend static data from data.ts
 ZONES = [
     Zone(id='A', name='Zone A', area='Downtown Core', riders=42, totalOrders=1247, breachRate=0.082, avgDelivery=24.1),
     Zone(id='B', name='Zone B', area='North District', riders=31, totalOrders=934, breachRate=0.104, avgDelivery=25.8),

@@ -5,7 +5,6 @@ from typing import List
 from schemas import Zone, Incident, MetricsSummary
 from data_mock import ZONES, INCIDENTS, METRICS
 
-
 app = FastAPI(title="PeakPulse API", description="Backend service for PeakPulse")
 
 # Configure CORS to allow frontend connections
@@ -29,18 +28,15 @@ def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
 
-
 @app.get("/api/zones", response_model=List[Zone], tags=["Domain"])
 def get_zones():
     """Retrieve all delivery zones and their current metrics."""
     return ZONES
 
-
 @app.get("/api/incidents", response_model=List[Incident], tags=["Domain"])
 def get_incidents():
     """Retrieve all recent SLA breach incidents."""
     return INCIDENTS
-
 
 @app.get("/api/metrics", response_model=MetricsSummary, tags=["Domain"])
 def get_metrics():
