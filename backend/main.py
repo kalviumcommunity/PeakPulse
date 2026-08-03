@@ -16,10 +16,12 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 @app.get("/")
 def read_root():
     """Root endpoint to verify the API is running."""
     return {"message": "Welcome to the PeakPulse API"}
+
 
 @app.get("/api/health")
 def health_check():
