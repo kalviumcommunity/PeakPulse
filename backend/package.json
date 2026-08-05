@@ -9,7 +9,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "migrate": "tsx src/database/migrate.ts",
-    "seed": "tsx src/database/seed.ts"
+    "migrate:profile": "tsx src/database/migrations/run_profile_migration.ts",
+    "seed": "tsx src/database/seed.ts",
+    "test": "echo \"Tests not implemented yet\" && exit 0"
   },
   "keywords": ["delivery", "analytics", "jwt", "express"],
   "author": "",

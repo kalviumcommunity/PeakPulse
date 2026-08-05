@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import riderRoutes from './routes/rider.routes.js';
@@ -37,6 +38,7 @@ app.get('/health', async (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/riders', riderRoutes);
