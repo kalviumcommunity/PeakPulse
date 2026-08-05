@@ -7,10 +7,18 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     role VARCHAR(50) DEFAULT 'analyst',
+    avatar VARCHAR(500),
+    age INTEGER,
+    gender VARCHAR(20),
+    height DECIMAL(5, 2),
+    weight DECIMAL(5, 2),
+    fitness_goal VARCHAR(50),
+    activity_level VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP,
-    is_active BOOLEAN DEFAULT true
+    is_active BOOLEAN DEFAULT true,
+    deleted_at TIMESTAMP
 );
 
 -- Refresh tokens table
@@ -139,3 +147,34 @@ $$ language 'plpgsql';
 -- Apply trigger to users table
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Add check constraints for user profile fields
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_age_positive') THEN
+    ALTER TABLE users ADD CONSTRAINT check_age_positive CHECK (age IS NULL OR age > 0);
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_height_positive') THEN
+    ALTER TABLE users ADD CONSTRAINT check_height_positive CHECK (height IS NULL OR height > 0);
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_weight_positive') THEN
+    ALTER TABLE users ADD CONSTRAINT check_weight_positive CHECK (weight IS NULL OR weight > 0);
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_gender_valid') THEN
+    ALTER TABLE users ADD CONSTRAINT check_gender_valid 
+    CHECK (gender IS NULL OR gender IN ('male', 'female', 'other', 'prefer_not_to_say'));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_fitness_goal_valid') THEN
+    ALTER TABLE users ADD CONSTRAINT check_fitness_goal_valid 
+    CHECK (fitness_goal IS NULL OR fitness_goal IN ('weight_loss', 'muscle_gain', 'maintenance', 'endurance', 'general_fitness'));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'check_activity_level_valid') THEN
+    ALTER TABLE users ADD CONSTRAINT check_activity_level_valid 
+    CHECK (activity_level IS NULL OR activity_level IN ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extremely_active'));
+  END IF;
+END $$;
