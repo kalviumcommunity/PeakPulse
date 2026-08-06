@@ -1,0 +1,143 @@
+// PeakPulse Analytics Platform - Prisma Schema
+// Food Delivery Intelligence Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum VehicleType {
+  BIKE
+  SCOOTER
+  MOTORCYCLE
+  CAR
+  BICYCLE
+}
+
+enum ComplaintType {
+  LATE_DELIVERY
+  WRONG_ORDER
+  MISSING_ITEMS
+  POOR_QUALITY
+  RIDER_BEHAVIOR
+  RESTAURANT_ISSUE
+  OTHER
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Restaurant {
+  id        String   @id @default(uuid())
+  name      String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  deliveries Delivery[]
+
+  @@index([name])
+  @@index([location])
+  @@map("restaurants")
+}
+
+model Rider {
+  id          String      @id @default(uuid())
+  riderCode   String      @unique
+  name        String
+  vehicleType VehicleType
+  joiningDate DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  deliveries Delivery[]
+
+  @@index([riderCode])
+  @@index([name])
+  @@index([vehicleType])
+  @@map("riders")
+}
+
+model Delivery {
+  id                 String    @id @default(uuid())
+  orderId            String    @unique
+  restaurantId       String
+  riderId            String
+  customerZone       String
+  assignedAt         DateTime
+  pickedAt           DateTime?
+  deliveredAt        DateTime?
+  promisedTime       DateTime
+  actualDeliveryTime DateTime?
+  slaBreached        Boolean   @default(false)
+  distanceKm         Float
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  rider      Rider      @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  complaint  Complaint?
+  refund     Refund?
+
+  @@index([orderId])
+  @@index([restaurantId])
+  @@index([riderId])
+  @@index([customerZone])
+  @@index([assignedAt])
+  @@index([promisedTime])
+  @@index([slaBreached])
+  @@index([createdAt])
+  @@map("deliveries")
+}
+
+model Complaint {
+  id            String        @id @default(uuid())
+  deliveryId    String        @unique
+  complaintType ComplaintType
+  severity      Severity
+  description   String
+  createdAt     DateTime      @default(now())
+
+  // Relations
+  delivery Delivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([complaintType])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("complaints")
+}
+
+model Refund {
+  id           String   @id @default(uuid())
+  deliveryId   String   @unique
+  refundAmount Float
+  refundReason String
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  // Relations
+  delivery Delivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([approved])
+  @@index([createdAt])
+  @@map("refunds")
+}
