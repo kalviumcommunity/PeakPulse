@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import { pool } from '../database/connection.js';
 
-export async function getDeliveries(req: Request, res: Response) {
+export const getDeliveries: RequestHandler = async (req, res) => {
   const { startDate, endDate, status, zone, page = 1, limit = 50 } = req.query;
 
   try {
@@ -59,9 +59,9 @@ export async function getDeliveries(req: Request, res: Response) {
     console.error('Get deliveries error:', error);
     res.status(500).json({ message: 'Failed to fetch deliveries' });
   }
-}
+};
 
-export async function getDeliveryById(req: Request, res: Response) {
+export const getDeliveryById: RequestHandler = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -81,7 +81,8 @@ export async function getDeliveryById(req: Request, res: Response) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Delivery not found' });
+      res.status(404).json({ message: 'Delivery not found' });
+      return;
     }
 
     res.json({ delivery: result.rows[0] });
@@ -89,9 +90,9 @@ export async function getDeliveryById(req: Request, res: Response) {
     console.error('Get delivery error:', error);
     res.status(500).json({ message: 'Failed to fetch delivery' });
   }
-}
+};
 
-export async function getDeliveriesByZone(req: Request, res: Response) {
+export const getDeliveriesByZone: RequestHandler = async (req, res) => {
   const { zone } = req.params;
   const { startDate, endDate } = req.query;
 
@@ -129,4 +130,4 @@ export async function getDeliveriesByZone(req: Request, res: Response) {
     console.error('Get zone deliveries error:', error);
     res.status(500).json({ message: 'Failed to fetch zone deliveries' });
   }
-}
+};

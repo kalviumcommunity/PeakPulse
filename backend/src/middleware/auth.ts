@@ -2,12 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt.js';
 import { AuthRequest } from '../types/index.js';
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export function authenticateToken(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+    res.status(401).json({ message: 'Access token required' });
+    return;
   }
 
   try {
@@ -15,20 +16,22 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     (req as AuthRequest).user = payload;
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    res.status(403).json({ message: 'Invalid or expired token' });
   }
 }
 
 export function authorizeRoles(...roles: string[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = (req as AuthRequest).user;
     
     if (!user) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     if (!roles.includes(user.role)) {
-      return res.status(403).json({ message: 'Insufficient permissions' });
+      res.status(403).json({ message: 'Insufficient permissions' });
+      return;
     }
 
     next();
