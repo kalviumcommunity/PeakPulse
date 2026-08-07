@@ -1,80 +1,39 @@
 # PeakPulse Backend
 
-This folder contains the FastAPI backend for PeakPulse.
+Express + TypeScript backend for the PeakPulse Delivery Intelligence Platform.
 
 ## What it provides
 
-- `GET /` — basic welcome response
-- `GET /api/health` — health check
-- `GET /api/zones` — mock zone data
-- `GET /api/incidents` — mock incident data
-- `GET /api/metrics` — mock summary metrics
-
-## Run locally
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start the API from this folder:
-
-```bash
-uvicorn main:app --reload --port 8000
-```
-
-## Smoke test
-
-Run the included backend smoke test:
-
-```bash
-python -m pytest test_backend.py
-```
-# PeakPulse Backend API
-
-Backend API for the PeakPulse Delivery Intelligence Platform with JWT authentication.
-
-## Features
-
-- 🔐 JWT-based authentication with refresh tokens
-- 📊 Comprehensive delivery analytics
-- 🚴 Rider performance tracking
-- 🍽️ Restaurant analytics
-- ⏱️ SLA violation monitoring
-- 💬 Complaint analysis
-- 💸 Refund tracking
-- 🗄️ PostgreSQL database
+- JWT authentication with refresh tokens
+- Delivery analytics, rider metrics, and operational reporting
+- User profile management under `/api/users`
+- PostgreSQL-backed persistence and migrations
+- Validation, security headers, and centralized error handling
 
 ## Tech Stack
 
-- **Runtime**: Node.js with TypeScript
-- **Framework**: Express.js
-- **Database**: PostgreSQL
-- **Authentication**: JWT (jsonwebtoken)
-- **Password Hashing**: bcryptjs
-- **Security**: helmet, cors
-- **Validation**: express-validator
+- Node.js 18+
+- Express.js
+- TypeScript
+- PostgreSQL
+- JWT, bcryptjs, helmet, cors, express-validator
 
-## Prerequisites
-
-- Node.js 18+ 
-- PostgreSQL 14+
-- npm or pnpm
-
-## Installation
+## Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
-2. Create a `.env` file (copy from `.env.example`):
+2. Create your environment file:
+
 ```bash
-copy .env.example .env
+cp .env.example .env
 ```
 
-3. Configure your environment variables in `.env`:
+3. Configure the database and auth values in `.env`:
+
 ```env
 PORT=5000
 DB_HOST=localhost
@@ -85,123 +44,101 @@ DB_PASSWORD=your_password
 JWT_SECRET=your-secret-key
 ```
 
-## Database Setup
+4. Run migrations:
 
-1. Create the database:
-```sql
-CREATE DATABASE peakpulse;
-```
-
-2. Run migrations:
 ```bash
 npm run migrate
 ```
 
-3. (Optional) Seed sample data:
+5. Optional: seed sample data and run the profile migration if needed:
+
 ```bash
 npm run seed
+npm run migrate:profile
 ```
 
-## Running the Server
+## Run
 
-### Development Mode
+Development:
+
 ```bash
 npm run dev
 ```
 
-### Production Mode
+Build and start:
+
 ```bash
 npm run build
 npm start
 ```
 
-## API Endpoints
+## Available Routes
+
+### Health
+
+- `GET /health`
 
 ### Authentication
 
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/refresh` - Refresh access token
-- `POST /api/auth/logout` - Logout user
-- `GET /api/auth/profile` - Get user profile (protected)
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `GET /api/auth/profile`
+
+### Users
+
+- `GET /api/users/me`
+- `PUT /api/users/me`
+- `PUT /api/users/change-password`
+- `DELETE /api/users/me`
 
 ### Analytics
 
-- `GET /api/analytics/stats` - Overall delivery statistics
-- `GET /api/analytics/sla-violations` - SLA violation analysis
-- `GET /api/analytics/peak-hours` - Peak hour analysis
-- `GET /api/analytics/complaints` - Complaint analysis
-- `GET /api/analytics/refunds` - Refund analysis
+- `GET /api/analytics/stats`
+- `GET /api/analytics/sla-violations`
+- `GET /api/analytics/peak-hours`
+- `GET /api/analytics/complaints`
+- `GET /api/analytics/refunds`
 
 ### Deliveries
 
-- `GET /api/deliveries` - Get all deliveries (paginated)
-- `GET /api/deliveries/:id` - Get delivery by ID
-- `GET /api/deliveries/zone/:zone` - Get deliveries by zone
+- `GET /api/deliveries`
+- `GET /api/deliveries/:id`
+- `GET /api/deliveries/zone/:zone`
 
 ### Riders
 
-- `GET /api/riders` - Get all riders
-- `GET /api/riders/performance` - Rider performance metrics
-- `GET /api/riders/top` - Top performing riders
+- `GET /api/riders`
+- `GET /api/riders/performance`
+- `GET /api/riders/top`
 
-## Request Examples
+## Example Requests
 
-### Register User
+Register:
+
 ```bash
 curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "analyst@peakpulse.com",
-    "password": "password123",
-    "full_name": "John Analyst",
-    "role": "analyst"
-  }'
+  -d '{"email":"analyst@peakpulse.com","password":"password123","full_name":"John Analyst","role":"analyst"}'
 ```
 
-### Login
+Login:
+
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "analyst@peakpulse.com",
-    "password": "password123"
-  }'
+  -d '{"email":"analyst@peakpulse.com","password":"password123"}'
 ```
 
-### Get Analytics (Protected)
+Get profile:
+
 ```bash
-curl http://localhost:5000/api/analytics/stats?startDate=2024-01-01&endDate=2024-12-31 \
+curl http://localhost:5000/api/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-## Project Structure
+## Validation
 
-```
-backend/
-├── src/
-│   ├── controllers/       # Request handlers
-│   ├── routes/           # API routes
-│   ├── middleware/       # Auth & validation
-│   ├── database/         # DB connection & migrations
-│   ├── utils/            # Helper functions
-│   ├── types/            # TypeScript types
-│   └── server.ts         # Main server file
-├── .env.example          # Environment variables template
-├── tsconfig.json         # TypeScript config
-└── package.json          # Dependencies
-```
-
-## Security Features
-
-- Password hashing with bcryptjs
-- JWT access tokens (7 day expiry)
-- Refresh tokens (30 day expiry)
-- Protected routes with middleware
-- CORS configuration
-- Helmet for security headers
-- Input validation
-
-## License
-
-MIT
+- `npm run build` compiles the backend
+- `npm test` runs the build as the repository's validation step
