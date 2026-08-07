@@ -1,22 +1,24 @@
-import { Response } from 'express';
-import { AuthRequest } from '../types/index.js';
+import { RequestHandler } from 'express';
+import { AuthRequest, UpdateProfileDTO } from '../types/index.js';
 import { UserService } from '../services/user.service.js';
 
 /**
  * Get current user's profile
  */
-export async function getMyProfile(req: AuthRequest, res: Response) {
+export const getMyProfile: RequestHandler = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const profile = await UserService.getUserProfile(userId);
 
     if (!profile) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
+      return;
     }
 
     res.json({
@@ -30,28 +32,43 @@ export async function getMyProfile(req: AuthRequest, res: Response) {
       message: 'Failed to fetch profile' 
     });
   }
-}
+};
 
 /**
  * Update current user's profile
  */
-export async function updateMyProfile(req: AuthRequest, res: Response) {
+export const updateMyProfile: RequestHandler = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
-    const updateData = {
-      full_name: req.body.name || req.body.full_name,
-      avatar: req.body.avatar,
-      age: req.body.age,
-      gender: req.body.gender,
-      height: req.body.height,
-      weight: req.body.weight,
-      fitness_goal: req.body.fitnessGoal || req.body.fitness_goal,
-      activity_level: req.body.activityLevel || req.body.activity_level
+    const body = req.body as Partial<{
+      name: string;
+      full_name: string;
+      avatar: string;
+      age: number;
+      gender: string;
+      height: number;
+      weight: number;
+      fitnessGoal: string;
+      fitness_goal: string;
+      activityLevel: string;
+      activity_level: string;
+    }>;
+
+    const updateData: UpdateProfileDTO = {
+      full_name: body.name ?? body.full_name,
+      avatar: body.avatar,
+      age: body.age,
+      gender: body.gender,
+      height: body.height,
+      weight: body.weight,
+      fitness_goal: body.fitnessGoal ?? body.fitness_goal,
+      activity_level: body.activityLevel ?? body.activity_level
     };
 
     // Remove undefined values
@@ -64,10 +81,11 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
     const updatedProfile = await UserService.updateUserProfile(userId, updateData);
 
     if (!updatedProfile) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'User not found' 
       });
+      return;
     }
 
     res.json({
@@ -80,10 +98,11 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
 
     // Handle database constraint violations
     if (error.code === '23514') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Invalid data provided. Please check field values.'
       });
+      return;
     }
 
     res.status(500).json({ 
@@ -91,28 +110,30 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
       message: 'Failed to update profile' 
     });
   }
-}
+};
 
 /**
  * Change user password
  */
-export async function changePassword(req: AuthRequest, res: Response) {
+export const changePassword: RequestHandler = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
 
     const result = await UserService.changePassword(userId, currentPassword, newPassword);
 
     if (!result.success) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: result.message
       });
+      return;
     }
 
     res.json({
@@ -126,26 +147,28 @@ export async function changePassword(req: AuthRequest, res: Response) {
       message: 'Failed to change password' 
     });
   }
-}
+};
 
 /**
  * Soft delete user account
  */
-export async function deleteMyAccount(req: AuthRequest, res: Response) {
+export const deleteMyAccount: RequestHandler = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = (req as AuthRequest).user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const deleted = await UserService.softDeleteUser(userId);
 
     if (!deleted) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'User not found or already deleted' 
       });
+      return;
     }
 
     res.json({
@@ -159,4 +182,4 @@ export async function deleteMyAccount(req: AuthRequest, res: Response) {
       message: 'Failed to delete account' 
     });
   }
-}
+};

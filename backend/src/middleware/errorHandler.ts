@@ -2,14 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 
 export function errorHandler(
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) {
   console.error('Error:', err);
 
   if (res.headersSent) {
-    return next(err);
+    next(err);
+    return;
   }
 
   const status = (err as any).status || 500;
