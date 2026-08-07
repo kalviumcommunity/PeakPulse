@@ -1,5 +1,5 @@
 import { pool } from '../database/connection.js';
-import { User, UserProfileDTO, UpdateProfileDTO } from '../types/index.js';
+import { UserProfileDTO, UpdateProfileDTO } from '../types/index.js';
 import { comparePassword, hashPassword } from '../utils/password.js';
 
 export class UserService {

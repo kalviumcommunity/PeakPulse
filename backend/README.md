@@ -44,7 +44,7 @@ DB_PASSWORD=your_password
 JWT_SECRET=your-secret-key
 ```
 
-4. Run migrations:
+4. Create the database and run migrations:
 
 ```bash
 npm run migrate
@@ -138,7 +138,26 @@ curl http://localhost:5000/api/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
+## Project Structure
+
+```
+backend/
+├── src/
+│   ├── controllers/
+│   ├── database/
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── types/
+│   ├── utils/
+│   └── server.ts
+├── prisma/
+├── package.json
+└── README.md
+```
+
 ## Validation
 
 - `npm run build` compiles the backend
-- `npm test` runs the build as the repository's validation step
+- `npm test` currently runs the build as the repository's validation step
+
