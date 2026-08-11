@@ -1,0 +1,4 @@
+orderId,complaintType,severity,description,createdAt
+ORD001,LATE_DELIVERY,HIGH,Order arrived 30 minutes late,2024-01-15T11:00:00Z
+ORD002,WRONG_ORDER,MEDIUM,Received wrong items,2024-01-15T12:00:00Z
+ORD003,POOR_QUALITY,LOW,Food was cold,2024-01-15T13:00:00Z
