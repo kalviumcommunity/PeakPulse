@@ -16,6 +16,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HEALTH_RATE_LIMIT_WINDOW_MS = 60_000;
+const HEALTH_RATE_LIMIT_MAX_REQUESTS = 30;
+const healthRequests = new Map<string, { count: number; windowStart: number }>();
 
 // Middleware
 app.use(helmet());
@@ -28,6 +31,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
+app.use('/health', (req, res, next) => {
+  const key = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const existing = healthRequests.get(key);
+
+  if (!existing || now - existing.windowStart >= HEALTH_RATE_LIMIT_WINDOW_MS) {
+    healthRequests.set(key, { count: 1, windowStart: now });
+    next();
+    return;
+  }
+
+  existing.count += 1;
+
+  if (existing.count > HEALTH_RATE_LIMIT_MAX_REQUESTS) {
+    res.status(429).json({ message: 'Too many requests' });
+    return;
+  }
+
+  next();
+});
+
 app.get('/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');

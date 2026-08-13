@@ -29,7 +29,7 @@ export async function importCSV(req: Request, res: Response) {
     let report;
     switch (fileType) {
       case 'delivery_logs':
-        report = await etlService.processDeliveryLogs(filePath);
+        report = await etlService.processDeliveryLogs(filePath, originalname);
         break;
       case 'rider_assignments':
         report = await etlService.processRiderAssignments(filePath);
@@ -76,11 +76,22 @@ export async function importCSV(req: Request, res: Response) {
 
 export async function getImportHistory(req: Request, res: Response) {
   try {
-    // This would typically fetch from a database table tracking imports
-    // For now, return a placeholder response
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+
+    const imports = await prisma.importHistory.findMany({
+      orderBy: {
+        uploadedAt: 'desc'
+      },
+      take: 50
+    });
+
+    await prisma.$disconnect();
+
     res.json({
-      imports: [],
-      message: 'Import history feature coming soon'
+      success: true,
+      imports,
+      total: imports.length
     });
   } catch (error: any) {
     console.error('Get import history error:', error);
