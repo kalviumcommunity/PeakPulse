@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
+import peakHoursRoutes from './routes/peak-hours.routes.js';
 import riderRoutes from './routes/rider.routes.js';
 import importRoutes from './routes/import.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -66,6 +67,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/analytics', peakHoursRoutes);
 app.use('/api/riders', riderRoutes);
 app.use('/api/import', importRoutes);
 
