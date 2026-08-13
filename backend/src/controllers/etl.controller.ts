@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { ETLService } from '../services/etl.service.js';
 import { getFileType, deleteFile } from '../utils/csv.utils.js';
-import fs from 'fs';
 
 const etlService = new ETLService();
 
@@ -32,13 +31,13 @@ export async function importCSV(req: Request, res: Response) {
         report = await etlService.processDeliveryLogs(filePath, originalname);
         break;
       case 'rider_assignments':
-        report = await etlService.processRiderAssignments(filePath);
+        report = await etlService.processRiderAssignments(filePath, originalname);
         break;
       case 'complaints':
-        report = await etlService.processComplaints(filePath);
+        report = await etlService.processComplaints(filePath, originalname);
         break;
       case 'refunds':
-        report = await etlService.processRefunds(filePath);
+        report = await etlService.processRefunds(filePath, originalname);
         break;
       default:
         deleteFile(filePath);
@@ -74,10 +73,9 @@ export async function importCSV(req: Request, res: Response) {
   }
 }
 
-export async function getImportHistory(req: Request, res: Response) {
+export async function getImportHistory(_req: Request, res: Response) {
   try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    const prisma = (await import('../lib/prisma.js')).default;
 
     const imports = await prisma.importHistory.findMany({
       orderBy: {
@@ -85,8 +83,6 @@ export async function getImportHistory(req: Request, res: Response) {
       },
       take: 50
     });
-
-    await prisma.$disconnect();
 
     res.json({
       success: true,

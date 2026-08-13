@@ -1,11 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-import { CSVService } from './csv.service.js';
+import prisma from '../lib/prisma.js';
 import { DataCleaner } from '../utils/data-cleaner.js';
 import { DataTransformer } from '../utils/data-transformer.js';
-import { ImportReport, ImportStats } from '../types/etl.types.js';
+import { ImportReport } from '../types/etl.types.js';
 
-const prisma = new PrismaClient();
-const csvService = new CSVService();
 const cleaner = new DataCleaner();
 const transformer = new DataTransformer();
 
@@ -46,7 +43,7 @@ export class ETLService {
     return report;
   }
 
-  async processRiderAssignments(filePath: string): Promise<ImportReport> {
+  async processRiderAssignments(filePath: string, filename: string = 'unknown'): Promise<ImportReport> {
     const report: ImportReport = this.initializeReport('rider_assignments');
     const startTime = Date.now();
 
@@ -67,6 +64,9 @@ export class ETLService {
       report.stats.duration = Date.now() - startTime;
       report.success = report.errors.length === 0;
 
+      // Save import history
+      await this.saveImportHistory(filename, 'rider_assignments', report);
+
     } catch (error: any) {
       report.success = false;
       report.errors.push(`Pipeline failed: ${error.message}`);
@@ -75,7 +75,7 @@ export class ETLService {
     return report;
   }
 
-  async processComplaints(filePath: string): Promise<ImportReport> {
+  async processComplaints(filePath: string, filename: string = 'unknown'): Promise<ImportReport> {
     const report: ImportReport = this.initializeReport('complaints');
     const startTime = Date.now();
 
@@ -96,6 +96,9 @@ export class ETLService {
       report.stats.duration = Date.now() - startTime;
       report.success = report.errors.length === 0;
 
+      // Save import history
+      await this.saveImportHistory(filename, 'complaints', report);
+
     } catch (error: any) {
       report.success = false;
       report.errors.push(`Pipeline failed: ${error.message}`);
@@ -104,7 +107,7 @@ export class ETLService {
     return report;
   }
 
-  async processRefunds(filePath: string): Promise<ImportReport> {
+  async processRefunds(filePath: string, filename: string = 'unknown'): Promise<ImportReport> {
     const report: ImportReport = this.initializeReport('refunds');
     const startTime = Date.now();
 
@@ -124,6 +127,9 @@ export class ETLService {
 
       report.stats.duration = Date.now() - startTime;
       report.success = report.errors.length === 0;
+
+      // Save import history
+      await this.saveImportHistory(filename, 'refunds', report);
 
     } catch (error: any) {
       report.success = false;
@@ -166,11 +172,11 @@ export class ETLService {
       const batch = rows.slice(i, i + BATCH_SIZE);
       
       try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           for (const row of batch) {
             try {
               // Ensure restaurant exists
-              const restaurant = await tx.restaurant.upsert({
+              await tx.restaurant.upsert({
                 where: { id: row.restaurantId },
                 create: {
                   id: row.restaurantId,
@@ -181,7 +187,7 @@ export class ETLService {
               });
 
               // Ensure rider exists
-              const rider = await tx.rider.upsert({
+              await tx.rider.upsert({
                 where: { id: row.riderId },
                 create: {
                   id: row.riderId,
@@ -218,7 +224,7 @@ export class ETLService {
       const batch = rows.slice(i, i + BATCH_SIZE);
       
       try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           for (const row of batch) {
             try {
               // Create or update rider
@@ -256,7 +262,7 @@ export class ETLService {
       const batch = rows.slice(i, i + BATCH_SIZE);
       
       try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           for (const row of batch) {
             try {
               // Check if delivery exists
@@ -296,7 +302,7 @@ export class ETLService {
       const batch = rows.slice(i, i + BATCH_SIZE);
       
       try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           for (const row of batch) {
             try {
               // Check if delivery exists
@@ -346,8 +352,6 @@ export class ETLService {
       warnings: []
     };
   }
-}
-
 
   private async saveImportHistory(filename: string, fileType: string, report: ImportReport): Promise<void> {
     try {
