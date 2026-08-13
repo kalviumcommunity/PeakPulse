@@ -141,3 +141,20 @@ model Refund {
   @@index([createdAt])
   @@map("refunds")
 }
+
+model ImportHistory {
+  id           String   @id @default(uuid())
+  filename     String
+  fileType     String
+  uploadedAt   DateTime @default(now())
+  importedRows Int      @default(0)
+  skippedRows  Int      @default(0)
+  failedRows   Int      @default(0)
+  status       String
+  errorMessage String?
+  duration     Int      @default(0)
+
+  @@index([uploadedAt])
+  @@index([status])
+  @@map("import_history")
+}

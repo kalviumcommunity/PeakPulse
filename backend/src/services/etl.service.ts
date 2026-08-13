@@ -10,7 +10,7 @@ const cleaner = new DataCleaner();
 const transformer = new DataTransformer();
 
 export class ETLService {
-  async processDeliveryLogs(filePath: string): Promise<ImportReport> {
+  async processDeliveryLogs(filePath: string, filename: string = 'unknown'): Promise<ImportReport> {
     const report: ImportReport = this.initializeReport('delivery_logs');
     const startTime = Date.now();
 
@@ -34,6 +34,9 @@ export class ETLService {
 
       report.stats.duration = Date.now() - startTime;
       report.success = report.errors.length === 0;
+
+      // Save import history
+      await this.saveImportHistory(filename, 'delivery_logs', report);
 
     } catch (error: any) {
       report.success = false;
@@ -342,5 +345,26 @@ export class ETLService {
       errors: [],
       warnings: []
     };
+  }
+}
+
+
+  private async saveImportHistory(filename: string, fileType: string, report: ImportReport): Promise<void> {
+    try {
+      await prisma.importHistory.create({
+        data: {
+          filename,
+          fileType,
+          importedRows: report.stats.importedRows,
+          skippedRows: report.stats.skippedRows,
+          failedRows: report.stats.corruptedRows,
+          status: report.success ? 'SUCCESS' : 'PARTIAL',
+          errorMessage: report.errors.length > 0 ? report.errors.join('; ').substring(0, 500) : null,
+          duration: report.stats.duration
+        }
+      });
+    } catch (error) {
+      console.error('Failed to save import history:', error);
+    }
   }
 }

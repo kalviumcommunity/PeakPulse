@@ -11,6 +11,7 @@
     "migrate": "tsx src/database/migrate.ts",
     "migrate:profile": "tsx src/database/migrations/run_profile_migration.ts",
     "seed": "tsx src/database/seed.ts",
+    "seed:prisma": "tsx prisma/seed.ts",
     "test": "echo \"Tests not implemented yet\" && exit 0"
   },
   "keywords": [
