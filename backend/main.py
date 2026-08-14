@@ -10,15 +10,13 @@ from data_mock import ZONES, INCIDENTS, METRICS
 from data_mock import INCIDENTS, METRICS, ZONES
 from schemas import Incident, MetricsSummary, Zone
 
-
+an
 app = FastAPI(
     title="PeakPulse API",
     description="Backend service for PeakPulse",
     version="1.0.0",
 )
 
-# Configure CORS to allow frontend connections.
-# Keep this permissive for local development and narrow it in production.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
