@@ -25,3 +25,10 @@ METRICS = MetricsSummary(
     activeRiders=177,
     breachCount=61,
 )
+# System Operational Thresholds & Configuration
+SYSTEM_CONFIG = {
+    "sla_target_minutes": 30,
+    "high_severity_threshold_minutes": 45,
+    "breach_rate_warning_threshold": 0.15,
+    "refresh_interval_seconds": 10,
+}

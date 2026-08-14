@@ -10,7 +10,7 @@ from data_mock import ZONES, INCIDENTS, METRICS
 from data_mock import INCIDENTS, METRICS, ZONES
 from schemas import Incident, MetricsSummary, Zone
 
-an
+
 app = FastAPI(
     title="PeakPulse API",
     description="Backend service for PeakPulse",
