@@ -11,12 +11,35 @@ export default function SignIn({ onSignIn, navigate }: Props) {
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!email || !password) { setError('Email and password required.'); return }
     setError('')
     setLoading(true)
-    setTimeout(onSignIn, 800)
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Authentication failed');
+      }
+
+      // Store token for API calls
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
+
+      onSignIn();
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in');
+      setLoading(false);
+    }
   }
 
   return (
