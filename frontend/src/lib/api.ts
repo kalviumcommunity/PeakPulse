@@ -122,3 +122,88 @@ export const analyticsAPI = {
   getRiskPatterns: (filter: PeakHourFilter = {}) => 
     fetchAPI<RiskPattern[]>('/analytics/risk-patterns', { params: filter as Record<string, string> }),
 };
+
+// ============================================
+// Phase 4: SLA Risk Scoring Types & API Client
+// ============================================
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface RiskFactor {
+  factor: string;
+  category: string;
+  score: number;
+  maxScore: number;
+  detail: string;
+  severity: RiskLevel;
+}
+
+export interface DeliveryRiskAssessment {
+  deliveryId?: string;
+  orderId?: string;
+  restaurantId?: string;
+  restaurantName?: string;
+  riderId?: string;
+  riderName?: string;
+  riderCode?: string;
+  vehicleType?: string;
+  customerZone: string;
+  distanceKm: number;
+  assignedAt: string;
+  promisedTime: string;
+  pickedAt?: string | null;
+  status: 'ASSIGNED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED';
+  riskScore: number;
+  riskLevel: RiskLevel;
+  estimatedBreachProbability: number;
+  estimatedMinutesToDelivery: number;
+  projectedDeliveryTime: string;
+  slaHeadroomMinutes: number;
+  factors: RiskFactor[];
+  recommendations: string[];
+}
+
+export interface RiskSummary {
+  totalActive: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  averageRiskScore: number;
+  criticalPercentage: number;
+  highRiskPercentage: number;
+  topContributingFactors: {
+    factor: string;
+    occurrences: number;
+    averageScore: number;
+  }[];
+}
+
+export interface RiskSimulationParams {
+  distanceKm: number;
+  customerZone?: string;
+  vehicleType?: string;
+  orderTimeHour?: number;
+  assignmentDelayMinutes?: number;
+  promisedDurationMinutes?: number;
+  restaurantName?: string;
+}
+
+export const riskAPI = {
+  getActive: (filter: { riskLevel?: RiskLevel; zone?: string; limit?: number; page?: number } = {}) =>
+    fetchAPI<DeliveryRiskAssessment[]>('/risk/active', {
+      params: filter as Record<string, string>
+    }),
+
+  getSummary: () =>
+    fetchAPI<RiskSummary>('/risk/summary'),
+
+  getById: (id: string) =>
+    fetchAPI<DeliveryRiskAssessment>(`/risk/delivery/${id}`),
+
+  evaluate: (params: RiskSimulationParams) =>
+    fetchAPI<DeliveryRiskAssessment>('/risk/evaluate', {
+      method: 'POST',
+      body: JSON.stringify(params)
+    })
+};
+

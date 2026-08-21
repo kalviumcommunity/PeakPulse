@@ -5,11 +5,12 @@ interface Props {
 }
 
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'operations', label: 'Analytics' },
-  { id: 'zones',     label: 'Zones'     },
-  { id: 'incidents', label: 'Incidents' },
-  { id: 'reports',   label: 'Reports'   },
+  { id: 'dashboard',    label: 'Dashboard'     },
+  { id: 'risk-monitor', label: '⚡ SLA Risk Live' },
+  { id: 'operations',   label: 'Analytics'     },
+  { id: 'zones',        label: 'Zones'         },
+  { id: 'incidents',    label: 'Incidents'     },
+  { id: 'reports',      label: 'Reports'       },
 ]
 
 const BREACH_RATES: Record<string, number> = {
