@@ -9,7 +9,8 @@ export function errorHandler(
   console.error('Error:', err);
 
   if (res.headersSent) {
-    return next(err);
+    next(err);
+    return;
   }
 
   const status = (err as any).status || 500;
