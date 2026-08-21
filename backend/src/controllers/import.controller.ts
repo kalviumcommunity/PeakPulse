@@ -5,13 +5,14 @@ import { CSVUploadResponse } from '../types/csv.types.js';
 
 const csvService = new CSVService();
 
-export async function uploadCSV(req: Request, res: Response) {
+export async function uploadCSV(req: Request, res: Response): Promise<void> {
   try {
     if (!req.file) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'No file uploaded'
       });
+      return;
     }
 
     const { path: filePath, originalname } = req.file;
@@ -21,10 +22,11 @@ export async function uploadCSV(req: Request, res: Response) {
     
     if (fileType === 'unknown') {
       deleteFile(filePath);
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Unable to determine file type. Filename must include: delivery, rider, complaint, or refund'
       });
+      return;
     }
 
     // Parse and validate CSV
@@ -44,7 +46,8 @@ export async function uploadCSV(req: Request, res: Response) {
     };
 
     const statusCode = validation.valid ? 200 : 400;
-    return res.status(statusCode).json(response);
+    res.status(statusCode).json(response);
+    return;
 
   } catch (error: any) {
     // Clean up file on error
@@ -53,14 +56,15 @@ export async function uploadCSV(req: Request, res: Response) {
     }
 
     console.error('CSV upload error:', error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: error.message || 'Failed to process CSV file'
     });
+    return;
   }
 }
 
-export async function getUploadInfo(req: Request, res: Response) {
+export async function getUploadInfo(_req: Request, res: Response): Promise<void> {
   try {
     res.json({
       maxFileSize: '10MB',

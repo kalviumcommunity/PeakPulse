@@ -4,7 +4,7 @@ import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, getTokenExpiration } from '../utils/jwt.js';
 import { AuthRequest } from '../types/index.js';
 
-export async function register(req: Request, res: Response) {
+export async function register(req: Request, res: Response): Promise<void> {
   const { email, password, full_name, role = 'analyst' } = req.body;
 
   try {
@@ -14,7 +14,8 @@ export async function register(req: Request, res: Response) {
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ message: 'Email already registered' });
+      res.status(400).json({ message: 'Email already registered' });
+      return;
     }
 
     const passwordHash = await hashPassword(password);
@@ -43,7 +44,7 @@ export async function register(req: Request, res: Response) {
   }
 }
 
-export async function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body;
 
   try {
@@ -53,14 +54,16 @@ export async function login(req: Request, res: Response) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
     }
 
     const user = result.rows[0];
     const isPasswordValid = await comparePassword(password, user.password_hash);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
     }
 
     const payload = {
@@ -101,11 +104,12 @@ export async function login(req: Request, res: Response) {
   }
 }
 
-export async function refreshToken(req: Request, res: Response) {
+export async function refreshToken(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    return res.status(400).json({ message: 'Refresh token required' });
+    res.status(400).json({ message: 'Refresh token required' });
+    return;
   }
 
   try {
@@ -117,7 +121,8 @@ export async function refreshToken(req: Request, res: Response) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(403).json({ message: 'Invalid or expired refresh token' });
+      res.status(403).json({ message: 'Invalid or expired refresh token' });
+      return;
     }
 
     const newAccessToken = generateAccessToken({
@@ -135,7 +140,7 @@ export async function refreshToken(req: Request, res: Response) {
   }
 }
 
-export async function logout(req: Request, res: Response) {
+export async function logout(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body;
   const user = (req as AuthRequest).user;
 
@@ -154,7 +159,7 @@ export async function logout(req: Request, res: Response) {
   }
 }
 
-export async function getProfile(req: Request, res: Response) {
+export async function getProfile(req: Request, res: Response): Promise<void> {
   const user = (req as AuthRequest).user;
 
   try {
@@ -164,7 +169,8 @@ export async function getProfile(req: Request, res: Response) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
+      return;
     }
 
     res.json({ user: result.rows[0] });

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { pool } from '../database/connection.js';
 
-export async function getDeliveries(req: Request, res: Response) {
+export async function getDeliveries(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, status, zone, page = 1, limit = 50 } = req.query;
 
   try {
@@ -61,7 +61,7 @@ export async function getDeliveries(req: Request, res: Response) {
   }
 }
 
-export async function getDeliveryById(req: Request, res: Response) {
+export async function getDeliveryById(req: Request, res: Response): Promise<void> {
   const { id } = req.params;
 
   try {
@@ -81,7 +81,8 @@ export async function getDeliveryById(req: Request, res: Response) {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Delivery not found' });
+      res.status(404).json({ message: 'Delivery not found' });
+      return;
     }
 
     res.json({ delivery: result.rows[0] });
@@ -91,7 +92,7 @@ export async function getDeliveryById(req: Request, res: Response) {
   }
 }
 
-export async function getDeliveriesByZone(req: Request, res: Response) {
+export async function getDeliveriesByZone(req: Request, res: Response): Promise<void> {
   const { zone } = req.params;
   const { startDate, endDate } = req.query;
 

@@ -5,18 +5,20 @@ import { UserService } from '../services/user.service.js';
 /**
  * Get current user's profile
  */
-export async function getMyProfile(req: AuthRequest, res: Response) {
+export async function getMyProfile(req: AuthRequest, res: Response): Promise<void> {
   try {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const profile = await UserService.getUserProfile(userId);
 
     if (!profile) {
-      return res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
+      return;
     }
 
     res.json({
@@ -35,12 +37,13 @@ export async function getMyProfile(req: AuthRequest, res: Response) {
 /**
  * Update current user's profile
  */
-export async function updateMyProfile(req: AuthRequest, res: Response) {
+export async function updateMyProfile(req: AuthRequest, res: Response): Promise<void> {
   try {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const updateData = {
@@ -64,10 +67,11 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
     const updatedProfile = await UserService.updateUserProfile(userId, updateData);
 
     if (!updatedProfile) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'User not found' 
       });
+      return;
     }
 
     res.json({
@@ -80,10 +84,11 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
 
     // Handle database constraint violations
     if (error.code === '23514') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Invalid data provided. Please check field values.'
       });
+      return;
     }
 
     res.status(500).json({ 
@@ -96,12 +101,13 @@ export async function updateMyProfile(req: AuthRequest, res: Response) {
 /**
  * Change user password
  */
-export async function changePassword(req: AuthRequest, res: Response) {
+export async function changePassword(req: AuthRequest, res: Response): Promise<void> {
   try {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const { currentPassword, newPassword } = req.body;
@@ -109,10 +115,11 @@ export async function changePassword(req: AuthRequest, res: Response) {
     const result = await UserService.changePassword(userId, currentPassword, newPassword);
 
     if (!result.success) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: result.message
       });
+      return;
     }
 
     res.json({
@@ -131,21 +138,23 @@ export async function changePassword(req: AuthRequest, res: Response) {
 /**
  * Soft delete user account
  */
-export async function deleteMyAccount(req: AuthRequest, res: Response) {
+export async function deleteMyAccount(req: AuthRequest, res: Response): Promise<void> {
   try {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const deleted = await UserService.softDeleteUser(userId);
 
     if (!deleted) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'User not found or already deleted' 
       });
+      return;
     }
 
     res.json({

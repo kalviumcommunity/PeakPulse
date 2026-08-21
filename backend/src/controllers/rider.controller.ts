@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { pool } from '../database/connection.js';
 
-export async function getRiders(req: Request, res: Response) {
+export async function getRiders(_req: Request, res: Response): Promise<void> {
   try {
     const result = await pool.query(
       `SELECT id, name, phone, vehicle_type, zone, rating, status, total_deliveries
@@ -16,7 +16,7 @@ export async function getRiders(req: Request, res: Response) {
   }
 }
 
-export async function getRiderPerformance(req: Request, res: Response) {
+export async function getRiderPerformance(req: Request, res: Response): Promise<void> {
   const { startDate, endDate } = req.query;
 
   try {
@@ -54,7 +54,7 @@ export async function getRiderPerformance(req: Request, res: Response) {
   }
 }
 
-export async function getTopRiders(req: Request, res: Response) {
+export async function getTopRiders(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit = 10 } = req.query;
 
   try {

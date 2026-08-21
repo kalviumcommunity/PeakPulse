@@ -1,5 +1,5 @@
 import { CSV_CONFIG } from '../config/csv.config.js';
-import { isValidDate, isValidNumber, parseBoolean } from '../utils/csv.utils.js';
+import { isValidDate, isValidNumber } from '../utils/csv.utils.js';
 
 export class CSVValidator {
   private errors: string[] = [];

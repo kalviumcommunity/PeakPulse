@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface User {
   id: number;
   email: string;
@@ -57,7 +59,7 @@ export interface JWTPayload {
   role: string;
 }
 
-export interface AuthRequest extends Express.Request {
+export interface AuthRequest extends Request {
   user?: JWTPayload;
 }
 

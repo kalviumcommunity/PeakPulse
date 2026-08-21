@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 
 export function ensureUploadDir(dir: string): void {
   if (!fs.existsSync(dir)) {
