@@ -36,6 +36,12 @@
 - Sets `deleted_at` timestamp and `is_active = false`
 - User cannot login after deletion
 
+## Operational Validation
+
+After applying the profile migration, verify the module with an authenticated
+read, update, password-change, and delete request using a non-production test
+account. Confirm that the deleted account can no longer authenticate.
+
 ---
 
 ## 📁 Files Created
