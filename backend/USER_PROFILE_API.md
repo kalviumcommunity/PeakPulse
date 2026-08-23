@@ -14,6 +14,8 @@ All endpoints require JWT authentication via Bearer token in the Authorization h
 Authorization: Bearer <your_access_token>
 ```
 
+Profile responses never include the user's password or password hash.
+
 ---
 
 ## Endpoints
