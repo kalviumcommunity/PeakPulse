@@ -45,6 +45,9 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 **Save the `accessToken` from response!**
 
+Use a disposable local test account for these examples. Do not place real
+passwords or access tokens in shell history, shared logs, or documentation.
+
 #### Step 3: Get your profile
 ```bash
 curl -X GET http://localhost:5000/api/users/me \
