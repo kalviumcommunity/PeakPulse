@@ -180,3 +180,4 @@ For issues or questions:
 - Check the API documentation in `backend/README.md`
 - Review error logs in the console
 - Verify database connections
+- Confirm the backend is reachable at `http://localhost:5000/health`
