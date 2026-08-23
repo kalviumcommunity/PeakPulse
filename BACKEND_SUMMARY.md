@@ -164,6 +164,9 @@ curl -X POST http://localhost:5000/api/auth/login \
   -d '{"email":"test@test.com","password":"test123"}'
 ```
 
+Use the returned access token in an `Authorization: Bearer <accessToken>`
+header when calling protected resources.
+
 ## 📊 Key Features
 
 ### 1. Comprehensive Analytics
