@@ -65,6 +65,12 @@ Development:
 npm run dev
 ```
 
+Verify the server is reachable:
+
+```bash
+curl http://localhost:5000/health
+```
+
 Build and start:
 
 ```bash
