@@ -80,6 +80,9 @@ Update the profile of the currently authenticated user.
 - `created_at`
 - `updated_at`
 
+Only the fields listed above as allowed may be changed; clients should not
+send protected or unknown fields in an update request.
+
 #### Request Body
 ```json
 {
