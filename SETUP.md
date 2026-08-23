@@ -107,6 +107,10 @@ The frontend needs to be updated to connect to the backend:
 4. Add API interceptors for auth headers
 5. Create login/register pages
 
+For local development, run the frontend from the `frontend` directory with
+`npm install` followed by `npm run dev`. Keep the backend running on port 5000
+so API requests from the frontend can reach the local server.
+
 ## API Architecture
 
 ### Authentication Flow
