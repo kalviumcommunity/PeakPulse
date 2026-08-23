@@ -150,6 +150,9 @@ server is reachable before testing authenticated endpoints.
    ```
    Server runs on `http://localhost:5000`
 
+Before testing protected endpoints, confirm the migration completed and the
+health check responds successfully from the same local server.
+
 ### Quick Test
 
 ```bash
