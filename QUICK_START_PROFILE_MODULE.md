@@ -20,6 +20,10 @@ npm run dev
 
 Server will start on `http://localhost:5000`
 
+If the migration or server fails to connect, verify that PostgreSQL is running,
+the database named `peakpulse` exists, and the backend environment variables
+match the local database credentials.
+
 ### 4. Test the API
 
 #### Step 1: Register a new user
@@ -44,6 +48,9 @@ curl -X POST http://localhost:5000/api/auth/login \
 ```
 
 **Save the `accessToken` from response!**
+
+Use a disposable local test account for these examples. Do not place real
+passwords or access tokens in shell history, shared logs, or documentation.
 
 #### Step 3: Get your profile
 ```bash

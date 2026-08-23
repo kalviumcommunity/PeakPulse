@@ -74,6 +74,9 @@ backend/
 
 ### 4. API Endpoints
 
+The backend exposes a health check at `GET /health`; use it to verify that the
+server is reachable before testing authenticated endpoints.
+
 #### Authentication (`/api/auth`)
 - `POST /register` - Register new user
 - `POST /login` - Login and get tokens
