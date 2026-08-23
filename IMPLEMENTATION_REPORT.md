@@ -129,6 +129,14 @@ Successfully implemented a complete User Profile module with authenticated endpo
 
 ---
 
+## Verification Checklist
+
+Before review, confirm that the backend starts successfully, the health check
+returns HTTP 200, and each protected profile endpoint rejects requests without
+an access token.
+
+---
+
 ## 🏗️ Architecture Overview
 
 ### Request Flow
