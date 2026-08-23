@@ -36,6 +36,9 @@
 - Sets `deleted_at` timestamp and `is_active = false`
 - User cannot login after deletion
 
+Profile responses must exclude `password` and `password_hash` values. Keep this
+response boundary intact whenever the profile DTO or its serialization changes.
+
 ---
 
 ## 📁 Files Created
