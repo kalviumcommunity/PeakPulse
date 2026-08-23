@@ -20,6 +20,10 @@ npm run dev
 
 Server will start on `http://localhost:5000`
 
+If the migration or server fails to connect, verify that PostgreSQL is running,
+the database named `peakpulse` exists, and the backend environment variables
+match the local database credentials.
+
 ### 4. Test the API
 
 #### Step 1: Register a new user
