@@ -16,6 +16,7 @@ export default function SignIn({ onSignIn, navigate }: Props) {
     if (!email || !password) { setError('Email and password required.'); return }
     setError('')
     setLoading(true)
+    localStorage.removeItem('authToken')
     
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
@@ -31,8 +32,8 @@ export default function SignIn({ onSignIn, navigate }: Props) {
       }
 
       // Store token for API calls
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
+      if (data.accessToken) {
+        localStorage.setItem('authToken', data.accessToken);
       }
 
       onSignIn();
