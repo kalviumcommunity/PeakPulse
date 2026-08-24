@@ -63,6 +63,76 @@ export default function Dashboard({ navigate }: Props) {
         ))}
       </div>
 
+      {/* Intelligence Hub Quick Links */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 28 }}>
+        {[
+          {
+            title: '🤖 ML Breach Predictor',
+            badge: 'ROC-AUC 0.9916',
+            desc: 'Multi-dimensional Random Forest & SHAP Explainability',
+            page: 'ml-predictor',
+            color: '#60A5FA',
+            border: '#60A5FA'
+          },
+          {
+            title: '🚨 Operational Alerts',
+            badge: '3 Active Alarms',
+            desc: 'Zone breach surge & kitchen prep threshold triggers',
+            page: 'alerts',
+            color: '#EF4444',
+            border: '#EF4444'
+          },
+          {
+            title: '💬 Ask Pulse (NLP)',
+            badge: 'Conversational',
+            desc: 'Ask free-form natural language operational questions',
+            page: 'nlp-analytics',
+            color: '#38A89D',
+            border: '#38A89D'
+          },
+          {
+            title: '⚡ SLA Risk Live Monitor',
+            badge: 'Real-Time Feed',
+            desc: 'Active orders scored by delivery risk & delay probability',
+            page: 'risk-monitor',
+            color: '#F5A623',
+            border: '#F5A623'
+          }
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            onClick={() => navigate(item.page)}
+            style={{
+              background: '#141B27',
+              border: `1px solid #1A2336`,
+              borderRadius: 6,
+              padding: '14px 18px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.borderColor = item.border;
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.borderColor = '#1A2336';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#FFFFFF' }}>{item.title}</span>
+              <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 3, background: '#0D1119', color: item.color, fontWeight: 700 }}>
+                {item.badge}
+              </span>
+            </div>
+            <div style={{ fontSize: 11, color: '#7A8499', lineHeight: 1.4 }}>{item.desc}</div>
+          </div>
+        ))}
+      </div>
+
       {/* SLA Pulse Matrix */}
       <div style={{
         background: '#141B27',

@@ -605,6 +605,33 @@ export const nlpAPI = {
     fetchAPI<Record<string, any>>('/nlp/schema')
 };
 
+// ============================================
+// Phase 9: Live Demo Dataset Controller
+// ============================================
+
+export interface DemoDatasetResult {
+  insertedRestaurants: number;
+  insertedRiders: number;
+  insertedDeliveries: number;
+  insertedComplaints: number;
+  insertedRefunds: number;
+  activeAlerts: number;
+  scenario: string;
+  timestamp: string;
+}
+
+export const demoAPI = {
+  seed: (payload: { scenario?: string } = {}) =>
+    fetchAPI<DemoDatasetResult>('/demo/seed', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  getStatus: () =>
+    fetchAPI<{ totalDeliveries: number; totalRestaurants: number; totalRiders: number; zonesCount: number; demoMode: boolean; status: string }>('/demo/status')
+};
+
+
 
 
 
