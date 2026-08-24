@@ -207,3 +207,177 @@ export const riskAPI = {
     })
 };
 
+// ============================================
+// Phase 5: Machine Learning SLA Breach Predictor
+// ============================================
+
+export type ModelAlgorithm = 'random_forest' | 'logistic_regression' | 'gradient_boost';
+export type MLRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface MLFeatureContribution {
+  featureName: string;
+  label: string;
+  rawValue: number | string;
+  impactScore: number;
+  direction: 'INCREASES_RISK' | 'DECREASES_RISK' | 'NEUTRAL';
+  description: string;
+}
+
+export interface MLPrescriptiveAction {
+  id: string;
+  title: string;
+  description: string;
+  estimatedRiskReduction: number;
+  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+  actionType: 'RIDER_REASSIGNMENT' | 'KITCHEN_EXPEDITE' | 'ROUTE_OPTIMIZATION' | 'CUSTOMER_ALERT';
+}
+
+export interface MLDeliveryFeatures {
+  distanceKm: number;
+  assignmentDelayMinutes: number;
+  prepDelayMinutes?: number;
+  orderHour?: number;
+  dayOfWeek?: number;
+  isPeakHour?: boolean;
+  promisedDurationMinutes?: number;
+  customerZone?: string;
+  zoneBreachRate?: number;
+  restaurantName?: string;
+  restaurantBreachRate?: number;
+  riderName?: string;
+  riderRating?: number;
+  riderExperienceDeliveries?: number;
+  vehicleType?: 'BIKE' | 'SCOOTER' | 'MOTORCYCLE' | 'CAR' | 'BICYCLE' | string;
+  weatherCondition?: 'CLEAR' | 'RAIN' | 'STORM' | 'HEAVY_TRAFFIC' | 'FOG' | string;
+  orderValue?: number;
+}
+
+export interface MLPredictionResult {
+  breachProbability: number;
+  breachPercentage: number;
+  predictedLabel: 0 | 1;
+  riskLevel: MLRiskLevel;
+  confidence: number;
+  decisionThreshold: number;
+  modelUsed: ModelAlgorithm;
+  modelVersion: string;
+  featureContributions: MLFeatureContribution[];
+  prescriptiveActions: MLPrescriptiveAction[];
+  inputFeatures: MLDeliveryFeatures;
+  timestamp: string;
+}
+
+export interface MLConfusionMatrix {
+  truePositives: number;
+  falsePositives: number;
+  trueNegatives: number;
+  falseNegatives: number;
+  totalSamples: number;
+}
+
+export interface MLROCCurvePoint {
+  threshold: number;
+  fpr: number;
+  tpr: number;
+  precision: number;
+}
+
+export interface MLPRCurvePoint {
+  threshold: number;
+  recall: number;
+  precision: number;
+}
+
+export interface MLFeatureImportanceItem {
+  feature: string;
+  label: string;
+  importance: number;
+  coefficientSign: '+' | '-';
+  rank: number;
+  category: 'OPERATIONAL' | 'SPATIAL' | 'TEMPORAL' | 'FLEET' | 'ENVIRONMENTAL';
+}
+
+export interface MLEvaluationMetrics {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  specificity: number;
+  f1Score: number;
+  rocAuc: number;
+  logLoss: number;
+  confusionMatrix: MLConfusionMatrix;
+  optimalThreshold: number;
+  trainSamples: number;
+  testSamples: number;
+  breachPrevalence: number;
+}
+
+export interface MLModelComparisonResult {
+  algorithm: ModelAlgorithm;
+  name: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  rocAuc: number;
+  trainingTimeMs: number;
+  inferenceLatencyMs: number;
+  isCurrentActive: boolean;
+}
+
+export interface MLTrainingConfig {
+  algorithm?: ModelAlgorithm;
+  testSplitRatio?: number;
+  nEstimators?: number;
+  maxDepth?: number;
+  regularizationC?: number;
+  learningRate?: number;
+  randomSeed?: number;
+}
+
+export interface MLBatchResponse {
+  totalProcessed: number;
+  averageBreachProbability: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  predictions: (MLPredictionResult & { id?: string; orderId?: string })[];
+}
+
+export const mlAPI = {
+  predict: (features: MLDeliveryFeatures) =>
+    fetchAPI<MLPredictionResult>('/ml/predict', {
+      method: 'POST',
+      body: JSON.stringify(features)
+    }),
+
+  batchPredict: (items: { id?: string; orderId?: string; features: MLDeliveryFeatures }[]) =>
+    fetchAPI<MLBatchResponse>('/ml/batch-predict', {
+      method: 'POST',
+      body: JSON.stringify({ items })
+    }),
+
+  train: (config: MLTrainingConfig = {}) =>
+    fetchAPI<{ metrics: MLEvaluationMetrics; modelInfo: any }>('/ml/train', {
+      method: 'POST',
+      body: JSON.stringify(config)
+    }),
+
+  getMetrics: () =>
+    fetchAPI<{ metrics: MLEvaluationMetrics; modelInfo: any }>('/ml/metrics'),
+
+  getROCCurve: () =>
+    fetchAPI<{ roc: MLROCCurvePoint[]; pr: MLPRCurvePoint[]; rocAuc: number }>('/ml/roc-curve'),
+
+  getFeatureImportance: () =>
+    fetchAPI<MLFeatureImportanceItem[]>('/ml/feature-importance'),
+
+  getModelComparison: () =>
+    fetchAPI<MLModelComparisonResult[]>('/ml/models'),
+
+  getModelInfo: () =>
+    fetchAPI<{ activeAlgorithm: ModelAlgorithm; modelVersion: string; metrics: MLEvaluationMetrics }>('/ml/model-info')
+};
+
+
