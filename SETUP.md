@@ -107,6 +107,10 @@ The frontend needs to be updated to connect to the backend:
 4. Add API interceptors for auth headers
 5. Create login/register pages
 
+For local development, run the frontend from the `frontend` directory with
+`npm install` followed by `npm run dev`. Keep the backend running on port 5000
+so API requests from the frontend can reach the local server.
+
 ## API Architecture
 
 ### Authentication Flow
@@ -176,3 +180,4 @@ For issues or questions:
 - Check the API documentation in `backend/README.md`
 - Review error logs in the console
 - Verify database connections
+- Confirm the backend is reachable at `http://localhost:5000/health`

@@ -8,8 +8,14 @@ import userRoutes from './routes/user.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import peakHoursRoutes from './routes/peak-hours.routes.js';
+import insightsRoutes from './routes/insights.routes.js';
 import riderRoutes from './routes/rider.routes.js';
 import importRoutes from './routes/import.routes.js';
+import riskRoutes from './routes/risk.routes.js';
+import mlRoutes from './routes/ml.routes.js';
+import alertRoutes from './routes/alert.routes.js';
+import nlpRoutes from './routes/nlp.routes.js';
+import demoRoutes from './routes/demo.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { pool } from './database/connection.js';
 
@@ -17,9 +23,6 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const HEALTH_RATE_LIMIT_WINDOW_MS = 60_000;
-const HEALTH_RATE_LIMIT_MAX_REQUESTS = 30;
-const healthRequests = new Map<string, { count: number; windowStart: number }>();
 
 // Middleware
 app.use(helmet());
@@ -32,27 +35,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.use('/health', (req, res, next) => {
-  const key = req.ip || req.socket.remoteAddress || 'unknown';
-  const now = Date.now();
-  const existing = healthRequests.get(key);
-
-  if (!existing || now - existing.windowStart >= HEALTH_RATE_LIMIT_WINDOW_MS) {
-    healthRequests.set(key, { count: 1, windowStart: now });
-    next();
-    return;
-  }
-
-  existing.count += 1;
-
-  if (existing.count > HEALTH_RATE_LIMIT_MAX_REQUESTS) {
-    res.status(429).json({ message: 'Too many requests' });
-    return;
-  }
-
-  next();
-});
-
 app.get('/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
@@ -68,6 +50,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/analytics', peakHoursRoutes);
+app.use('/api/analytics', insightsRoutes);
+app.use('/api/risk', riskRoutes);
+app.use('/api/ml', mlRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/nlp', nlpRoutes);
+app.use('/api/demo', demoRoutes);
 app.use('/api/riders', riderRoutes);
 app.use('/api/import', importRoutes);
 

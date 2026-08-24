@@ -65,6 +65,39 @@ model Delivery {
   @@index([is_sla_violated], map: "idx_deliveries_sla_violated")
   @@index([status], map: "idx_deliveries_status")
   @@index([zone], map: "idx_deliveries_zone")
+=======
+  id                 String    @id @default(uuid())
+  orderId            String    @unique
+  restaurantId       String
+  riderId            String
+  customerZone       String
+  assignedAt         DateTime
+  pickedAt           DateTime?
+  deliveredAt        DateTime?
+  promisedTime       DateTime
+  actualDeliveryTime DateTime?
+  slaBreached        Boolean   @default(false)
+  distanceKm         Float
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  rider      Rider      @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  complaint  Complaint?
+  refund     Refund?
+
+  @@index([orderId])
+  @@index([restaurantId])
+  @@index([riderId])
+  @@index([customerZone])
+  @@index([assignedAt])
+  @@index([promisedTime])
+  @@index([slaBreached])
+  @@index([createdAt])
+  @@index([customerZone, assignedAt, slaBreached])
+  @@index([restaurantId, slaBreached])
+  @@index([riderId, slaBreached])
   @@map("deliveries")
 }
 

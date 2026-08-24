@@ -122,3 +122,516 @@ export const analyticsAPI = {
   getRiskPatterns: (filter: PeakHourFilter = {}) => 
     fetchAPI<RiskPattern[]>('/analytics/risk-patterns', { params: filter as Record<string, string> }),
 };
+
+// ============================================
+// Phase 4: SLA Risk Scoring Types & API Client
+// ============================================
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface RiskFactor {
+  factor: string;
+  category: string;
+  score: number;
+  maxScore: number;
+  detail: string;
+  severity: RiskLevel;
+}
+
+export interface DeliveryRiskAssessment {
+  deliveryId?: string;
+  orderId?: string;
+  restaurantId?: string;
+  restaurantName?: string;
+  riderId?: string;
+  riderName?: string;
+  riderCode?: string;
+  vehicleType?: string;
+  customerZone: string;
+  distanceKm: number;
+  assignedAt: string;
+  promisedTime: string;
+  pickedAt?: string | null;
+  status: 'ASSIGNED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED';
+  riskScore: number;
+  riskLevel: RiskLevel;
+  estimatedBreachProbability: number;
+  estimatedMinutesToDelivery: number;
+  projectedDeliveryTime: string;
+  slaHeadroomMinutes: number;
+  factors: RiskFactor[];
+  recommendations: string[];
+}
+
+export interface RiskSummary {
+  totalActive: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  averageRiskScore: number;
+  criticalPercentage: number;
+  highRiskPercentage: number;
+  topContributingFactors: {
+    factor: string;
+    occurrences: number;
+    averageScore: number;
+  }[];
+}
+
+export interface RiskSimulationParams {
+  distanceKm: number;
+  customerZone?: string;
+  vehicleType?: string;
+  orderTimeHour?: number;
+  assignmentDelayMinutes?: number;
+  promisedDurationMinutes?: number;
+  restaurantName?: string;
+}
+
+export const riskAPI = {
+  getActive: (filter: { riskLevel?: RiskLevel; zone?: string; limit?: number; page?: number } = {}) =>
+    fetchAPI<DeliveryRiskAssessment[]>('/risk/active', {
+      params: filter as Record<string, string>
+    }),
+
+  getSummary: () =>
+    fetchAPI<RiskSummary>('/risk/summary'),
+
+  getById: (id: string) =>
+    fetchAPI<DeliveryRiskAssessment>(`/risk/delivery/${id}`),
+
+  evaluate: (params: RiskSimulationParams) =>
+    fetchAPI<DeliveryRiskAssessment>('/risk/evaluate', {
+      method: 'POST',
+      body: JSON.stringify(params)
+    })
+};
+
+// ============================================
+// Phase 5: Machine Learning SLA Breach Predictor
+// ============================================
+
+export type ModelAlgorithm = 'random_forest' | 'logistic_regression' | 'gradient_boost';
+export type MLRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface MLFeatureContribution {
+  featureName: string;
+  label: string;
+  rawValue: number | string;
+  impactScore: number;
+  direction: 'INCREASES_RISK' | 'DECREASES_RISK' | 'NEUTRAL';
+  description: string;
+}
+
+export interface MLPrescriptiveAction {
+  id: string;
+  title: string;
+  description: string;
+  estimatedRiskReduction: number;
+  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+  actionType: 'RIDER_REASSIGNMENT' | 'KITCHEN_EXPEDITE' | 'ROUTE_OPTIMIZATION' | 'CUSTOMER_ALERT';
+}
+
+export interface MLDeliveryFeatures {
+  distanceKm: number;
+  assignmentDelayMinutes: number;
+  prepDelayMinutes?: number;
+  orderHour?: number;
+  dayOfWeek?: number;
+  isPeakHour?: boolean;
+  promisedDurationMinutes?: number;
+  customerZone?: string;
+  zoneBreachRate?: number;
+  restaurantName?: string;
+  restaurantBreachRate?: number;
+  riderName?: string;
+  riderRating?: number;
+  riderExperienceDeliveries?: number;
+  vehicleType?: 'BIKE' | 'SCOOTER' | 'MOTORCYCLE' | 'CAR' | 'BICYCLE' | string;
+  weatherCondition?: 'CLEAR' | 'RAIN' | 'STORM' | 'HEAVY_TRAFFIC' | 'FOG' | string;
+  orderValue?: number;
+}
+
+export interface MLPredictionResult {
+  breachProbability: number;
+  breachPercentage: number;
+  predictedLabel: 0 | 1;
+  riskLevel: MLRiskLevel;
+  confidence: number;
+  decisionThreshold: number;
+  modelUsed: ModelAlgorithm;
+  modelVersion: string;
+  featureContributions: MLFeatureContribution[];
+  prescriptiveActions: MLPrescriptiveAction[];
+  inputFeatures: MLDeliveryFeatures;
+  timestamp: string;
+}
+
+export interface MLConfusionMatrix {
+  truePositives: number;
+  falsePositives: number;
+  trueNegatives: number;
+  falseNegatives: number;
+  totalSamples: number;
+}
+
+export interface MLROCCurvePoint {
+  threshold: number;
+  fpr: number;
+  tpr: number;
+  precision: number;
+}
+
+export interface MLPRCurvePoint {
+  threshold: number;
+  recall: number;
+  precision: number;
+}
+
+export interface MLFeatureImportanceItem {
+  feature: string;
+  label: string;
+  importance: number;
+  coefficientSign: '+' | '-';
+  rank: number;
+  category: 'OPERATIONAL' | 'SPATIAL' | 'TEMPORAL' | 'FLEET' | 'ENVIRONMENTAL';
+}
+
+export interface MLEvaluationMetrics {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  specificity: number;
+  f1Score: number;
+  rocAuc: number;
+  logLoss: number;
+  confusionMatrix: MLConfusionMatrix;
+  optimalThreshold: number;
+  trainSamples: number;
+  testSamples: number;
+  breachPrevalence: number;
+}
+
+export interface MLModelComparisonResult {
+  algorithm: ModelAlgorithm;
+  name: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  rocAuc: number;
+  trainingTimeMs: number;
+  inferenceLatencyMs: number;
+  isCurrentActive: boolean;
+}
+
+export interface MLTrainingConfig {
+  algorithm?: ModelAlgorithm;
+  testSplitRatio?: number;
+  nEstimators?: number;
+  maxDepth?: number;
+  regularizationC?: number;
+  learningRate?: number;
+  randomSeed?: number;
+}
+
+export interface MLBatchResponse {
+  totalProcessed: number;
+  averageBreachProbability: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  predictions: (MLPredictionResult & { id?: string; orderId?: string })[];
+}
+
+export const mlAPI = {
+  predict: (features: MLDeliveryFeatures) =>
+    fetchAPI<MLPredictionResult>('/ml/predict', {
+      method: 'POST',
+      body: JSON.stringify(features)
+    }),
+
+  batchPredict: (items: { id?: string; orderId?: string; features: MLDeliveryFeatures }[]) =>
+    fetchAPI<MLBatchResponse>('/ml/batch-predict', {
+      method: 'POST',
+      body: JSON.stringify({ items })
+    }),
+
+  train: (config: MLTrainingConfig = {}) =>
+    fetchAPI<{ metrics: MLEvaluationMetrics; modelInfo: any }>('/ml/train', {
+      method: 'POST',
+      body: JSON.stringify(config)
+    }),
+
+  getMetrics: () =>
+    fetchAPI<{ metrics: MLEvaluationMetrics; modelInfo: any }>('/ml/metrics'),
+
+  getROCCurve: () =>
+    fetchAPI<{ roc: MLROCCurvePoint[]; pr: MLPRCurvePoint[]; rocAuc: number }>('/ml/roc-curve'),
+
+  getFeatureImportance: () =>
+    fetchAPI<MLFeatureImportanceItem[]>('/ml/feature-importance'),
+
+  getModelComparison: () =>
+    fetchAPI<MLModelComparisonResult[]>('/ml/models'),
+
+  getModelInfo: () =>
+    fetchAPI<{ activeAlgorithm: ModelAlgorithm; modelVersion: string; metrics: MLEvaluationMetrics }>('/ml/model-info')
+};
+
+// ============================================
+// Phase 6: Operational Alerts System
+// ============================================
+
+export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'INFO';
+export type AlertStatus = 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED' | 'DISMISSED';
+export type AlertCategory =
+  | 'ZONE_BREACH_SURGE'
+  | 'RESTAURANT_PREP_DELAY'
+  | 'HIGH_RISK_SURGE'
+  | 'FLEET_SHORTAGE'
+  | 'WEATHER_HAZARD';
+
+export interface AlertMetricSnapshot {
+  currentValue: number;
+  thresholdValue: number;
+  unit: string;
+  comparison: '>' | '>=' | '<' | '<=';
+  deltaPercentage?: number;
+}
+
+export interface OperationalAlert {
+  id: string;
+  ruleId: string;
+  category: AlertCategory;
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  zone?: string;
+  restaurantId?: string;
+  restaurantName?: string;
+  metrics: AlertMetricSnapshot;
+  affectedCount: number;
+  recommendedActions: string[];
+  triggeredAt: string;
+  acknowledgedAt?: string;
+  acknowledgedBy?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolutionNotes?: string;
+  rootCause?: string;
+  cooldownUntil?: string;
+}
+
+export interface AlertRuleConfig {
+  id: string;
+  name: string;
+  category: AlertCategory;
+  description: string;
+  severity: AlertSeverity;
+  thresholdValue: number;
+  unit: string;
+  comparison: '>' | '>=' | '<' | '<=';
+  cooldownMinutes: number;
+  enabled: boolean;
+  recommendedActionTemplate: string;
+}
+
+export interface AlertSummaryKPI {
+  totalActive: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  acknowledgedCount: number;
+  resolvedTodayCount: number;
+  meanTimeToAcknowledgeMinutes: number;
+  meanTimeToResolveMinutes: number;
+  categoryBreakdown: {
+    category: AlertCategory;
+    count: number;
+    severity: AlertSeverity;
+  }[];
+}
+
+export const alertsAPI = {
+  getAlerts: (filter: { status?: AlertStatus; severity?: AlertSeverity; category?: AlertCategory; zone?: string; limit?: number; page?: number } = {}) =>
+    fetchAPI<OperationalAlert[]>('/alerts', {
+      params: filter as Record<string, string>
+    }),
+
+  getActive: () =>
+    fetchAPI<OperationalAlert[]>('/alerts/active'),
+
+  getSummary: () =>
+    fetchAPI<AlertSummaryKPI>('/alerts/summary'),
+
+  getById: (id: string) =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}`),
+
+  evaluate: () =>
+    fetchAPI<{ newAlertsCount: number; updatedAlertsCount: number; evaluatedRules: number }>('/alerts/evaluate', {
+      method: 'POST'
+    }),
+
+  acknowledge: (id: string, acknowledgedBy: string = 'Analyst') =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/acknowledge`, {
+      method: 'PATCH',
+      body: JSON.stringify({ acknowledgedBy })
+    }),
+
+  resolve: (id: string, resolutionNotes: string, resolvedBy: string = 'Analyst', rootCause: string = 'OTHER') =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/resolve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ resolvedBy, resolutionNotes, rootCause })
+    }),
+
+  dismiss: (id: string, reason?: string) =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/dismiss`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason })
+    }),
+
+  getRules: () =>
+    fetchAPI<AlertRuleConfig[]>('/alerts/rules'),
+
+  updateRule: (id: string, updates: Partial<AlertRuleConfig>) =>
+    fetchAPI<AlertRuleConfig>(`/alerts/rules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    }),
+
+  simulate: (dto: { category: AlertCategory; severity?: AlertSeverity; zone?: string; restaurantName?: string; currentValue?: number; thresholdValue?: number; affectedCount?: number }) =>
+    fetchAPI<OperationalAlert>('/alerts/simulate', {
+      method: 'POST',
+      body: JSON.stringify(dto)
+    })
+};
+
+// ============================================
+// Phase 7: NLP / Conversational Analytics
+// ============================================
+
+export type NLPIntent =
+  | 'RANKING_QUERY'
+  | 'METRIC_AGGREGATION'
+  | 'COMPARISON_QUERY'
+  | 'TIME_SERIES_TREND'
+  | 'ROOT_CAUSE_DIAGNOSIS'
+  | 'ANOMALY_LOOKUP'
+  | 'FILTERED_BREAKDOWN'
+  | 'GENERAL_HELP';
+
+export type ChartType = 'bar' | 'kpi' | 'pie' | 'line' | 'table';
+
+export interface NLPEntities {
+  zone?: string;
+  normalizedZone?: string;
+  restaurant?: string;
+  normalizedRestaurant?: string;
+  rider?: string;
+  normalizedRider?: string;
+  vehicleType?: string;
+  mealWindow?: 'LUNCH' | 'DINNER' | 'OFF_PEAK' | 'ALL';
+  hourRange?: { start: number; end: number };
+  limit?: number;
+  groupBy?: 'restaurant' | 'zone' | 'rider' | 'hour' | 'vehicle' | 'none';
+}
+
+export interface AnalyticalQueryPlan {
+  intent: NLPIntent;
+  entities: NLPEntities;
+  filters: Record<string, any>;
+  groupBy: string[];
+  aggregations: { field: string; op: string; alias: string }[];
+  orderBy: { field: string; direction: 'ASC' | 'DESC' };
+  limit: number;
+  generatedSQL: string;
+  explanation: string;
+}
+
+export interface ChartDataPoint {
+  label: string;
+  value: number;
+  secondaryValue?: number;
+  unit?: string;
+  category?: string;
+  color?: string;
+}
+
+export interface NLPQueryResult {
+  query: string;
+  intent: NLPIntent;
+  answer: string;
+  queryPlan: AnalyticalQueryPlan;
+  generatedSQL: string;
+  chartType: ChartType;
+  chartTitle?: string;
+  chartData: ChartDataPoint[];
+  tableData?: Record<string, any>[];
+  keyTakeaways: string[];
+  suggestedFollowUps: string[];
+  confidenceScore: number;
+  executionTimeMs: number;
+  timestamp: string;
+}
+
+export interface PromptSuggestion {
+  category: string;
+  icon: string;
+  prompts: string[];
+}
+
+export interface ConversationMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  result?: NLPQueryResult;
+  timestamp: string;
+}
+
+export const nlpAPI = {
+  query: (query: string) =>
+    fetchAPI<NLPQueryResult>('/nlp/query', {
+      method: 'POST',
+      body: JSON.stringify({ query })
+    }),
+
+  getSuggestions: () =>
+    fetchAPI<PromptSuggestion[]>('/nlp/suggestions'),
+
+  getSchema: () =>
+    fetchAPI<Record<string, any>>('/nlp/schema')
+};
+
+// ============================================
+// Phase 9: Live Demo Dataset Controller
+// ============================================
+
+export interface DemoDatasetResult {
+  insertedRestaurants: number;
+  insertedRiders: number;
+  insertedDeliveries: number;
+  insertedComplaints: number;
+  insertedRefunds: number;
+  activeAlerts: number;
+  scenario: string;
+  timestamp: string;
+}
+
+export const demoAPI = {
+  seed: (payload: { scenario?: string } = {}) =>
+    fetchAPI<DemoDatasetResult>('/demo/seed', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  getStatus: () =>
+    fetchAPI<{ totalDeliveries: number; totalRestaurants: number; totalRiders: number; zonesCount: number; demoMode: boolean; status: string }>('/demo/status')
+};
+
+
+
+
+

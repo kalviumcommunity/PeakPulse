@@ -5,11 +5,15 @@ interface Props {
 }
 
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'operations', label: 'Analytics' },
-  { id: 'zones',     label: 'Zones'     },
-  { id: 'incidents', label: 'Incidents' },
-  { id: 'reports',   label: 'Reports'   },
+  { id: 'dashboard',     label: 'Dashboard'        },
+  { id: 'nlp-analytics', label: '💬 Ask Pulse (NLP)'},
+  { id: 'alerts',        label: '🚨 Alerts'         },
+  { id: 'ml-predictor',  label: '🤖 ML Predictor'   },
+  { id: 'risk-monitor',  label: '⚡ SLA Risk Live'   },
+  { id: 'operations',    label: 'Analytics'        },
+  { id: 'zones',         label: 'Zones'            },
+  { id: 'incidents',     label: 'Incidents'        },
+  { id: 'reports',       label: 'Reports'          },
 ]
 
 const BREACH_RATES: Record<string, number> = {

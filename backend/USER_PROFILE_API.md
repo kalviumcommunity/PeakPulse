@@ -14,6 +14,8 @@ All endpoints require JWT authentication via Bearer token in the Authorization h
 Authorization: Bearer <your_access_token>
 ```
 
+Profile responses never include the user's password or password hash.
+
 ---
 
 ## Endpoints
@@ -77,6 +79,9 @@ Update the profile of the currently authenticated user.
 - `role`
 - `created_at`
 - `updated_at`
+
+Only the fields listed above as allowed may be changed; clients should not
+send protected or unknown fields in an update request.
 
 #### Request Body
 ```json

@@ -1,7 +1,7 @@
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 import { pool } from '../database/connection.js';
 
-export const getRiders: RequestHandler = async (_req, res) => {
+export async function getRiders(_req: Request, res: Response): Promise<void> {
   try {
     const result = await pool.query(
       `SELECT id, name, phone, vehicle_type, zone, rating, status, total_deliveries
@@ -14,9 +14,9 @@ export const getRiders: RequestHandler = async (_req, res) => {
     console.error('Get riders error:', error);
     res.status(500).json({ message: 'Failed to fetch riders' });
   }
-};
+}
 
-export const getRiderPerformance: RequestHandler = async (req, res) => {
+export async function getRiderPerformance(req: Request, res: Response): Promise<void> {
   const { startDate, endDate } = req.query;
 
   try {
@@ -52,9 +52,9 @@ export const getRiderPerformance: RequestHandler = async (req, res) => {
     console.error('Get rider performance error:', error);
     res.status(500).json({ message: 'Failed to fetch rider performance' });
   }
-};
+}
 
-export const getTopRiders: RequestHandler = async (req, res) => {
+export async function getTopRiders(req: Request, res: Response): Promise<void> {
   const { startDate, endDate, limit = 10 } = req.query;
 
   try {
@@ -90,4 +90,4 @@ export const getTopRiders: RequestHandler = async (req, res) => {
     console.error('Get top riders error:', error);
     res.status(500).json({ message: 'Failed to fetch top riders' });
   }
-};
+}

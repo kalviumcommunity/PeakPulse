@@ -74,6 +74,9 @@ backend/
 
 ### 4. API Endpoints
 
+The backend exposes a health check at `GET /health`; use it to verify that the
+server is reachable before testing authenticated endpoints.
+
 #### Authentication (`/api/auth`)
 - `POST /register` - Register new user
 - `POST /login` - Login and get tokens
@@ -147,6 +150,9 @@ backend/
    ```
    Server runs on `http://localhost:5000`
 
+Before testing protected endpoints, confirm the migration completed and the
+health check responds successfully from the same local server.
+
 ### Quick Test
 
 ```bash
@@ -163,6 +169,9 @@ curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@test.com","password":"test123"}'
 ```
+
+Use the returned access token in an `Authorization: Bearer <accessToken>`
+header when calling protected resources.
 
 ## 📊 Key Features
 

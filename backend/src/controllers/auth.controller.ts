@@ -1,10 +1,10 @@
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 import { pool } from '../database/connection.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken, getTokenExpiration } from '../utils/jwt.js';
 import { AuthRequest } from '../types/index.js';
 
-export const register: RequestHandler = async (req, res) => {
+export async function register(req: Request, res: Response): Promise<void> {
   const { email, password, full_name, role = 'analyst' } = req.body;
 
   try {
@@ -42,9 +42,9 @@ export const register: RequestHandler = async (req, res) => {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Registration failed' });
   }
-};
+}
 
-export const login: RequestHandler = async (req, res) => {
+export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body;
 
   try {
@@ -102,9 +102,9 @@ export const login: RequestHandler = async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Login failed' });
   }
-};
+}
 
-export const refreshToken: RequestHandler = async (req, res) => {
+export async function refreshToken(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -138,9 +138,9 @@ export const refreshToken: RequestHandler = async (req, res) => {
     console.error('Refresh token error:', error);
     res.status(403).json({ message: 'Invalid refresh token' });
   }
-};
+}
 
-export const logout: RequestHandler = async (req, res) => {
+export async function logout(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body;
   const user = (req as AuthRequest).user;
 
@@ -157,9 +157,9 @@ export const logout: RequestHandler = async (req, res) => {
     console.error('Logout error:', error);
     res.status(500).json({ message: 'Logout failed' });
   }
-};
+}
 
-export const getProfile: RequestHandler = async (req, res) => {
+export async function getProfile(req: Request, res: Response): Promise<void> {
   const user = (req as AuthRequest).user;
 
   try {
@@ -178,4 +178,4 @@ export const getProfile: RequestHandler = async (req, res) => {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Failed to fetch profile' });
   }
-};
+}

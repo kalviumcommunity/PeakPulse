@@ -1,13 +1,13 @@
-import { RequestHandler } from 'express';
-import { AuthRequest, UpdateProfileDTO } from '../types/index.js';
+import { Response } from 'express';
+import { AuthRequest } from '../types/index.js';
 import { UserService } from '../services/user.service.js';
 
 /**
  * Get current user's profile
  */
-export const getMyProfile: RequestHandler = async (req, res) => {
+export async function getMyProfile(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const userId = (req as AuthRequest).user?.userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
@@ -32,43 +32,29 @@ export const getMyProfile: RequestHandler = async (req, res) => {
       message: 'Failed to fetch profile' 
     });
   }
-};
+}
 
 /**
  * Update current user's profile
  */
-export const updateMyProfile: RequestHandler = async (req, res) => {
+export async function updateMyProfile(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const userId = (req as AuthRequest).user?.userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
-    const body = req.body as Partial<{
-      name: string;
-      full_name: string;
-      avatar: string;
-      age: number;
-      gender: string;
-      height: number;
-      weight: number;
-      fitnessGoal: string;
-      fitness_goal: string;
-      activityLevel: string;
-      activity_level: string;
-    }>;
-
-    const updateData: UpdateProfileDTO = {
-      full_name: body.name ?? body.full_name,
-      avatar: body.avatar,
-      age: body.age,
-      gender: body.gender,
-      height: body.height,
-      weight: body.weight,
-      fitness_goal: body.fitnessGoal ?? body.fitness_goal,
-      activity_level: body.activityLevel ?? body.activity_level
+    const updateData = {
+      full_name: req.body.name || req.body.full_name,
+      avatar: req.body.avatar,
+      age: req.body.age,
+      gender: req.body.gender,
+      height: req.body.height,
+      weight: req.body.weight,
+      fitness_goal: req.body.fitnessGoal || req.body.fitness_goal,
+      activity_level: req.body.activityLevel || req.body.activity_level
     };
 
     // Remove undefined values
@@ -110,21 +96,21 @@ export const updateMyProfile: RequestHandler = async (req, res) => {
       message: 'Failed to update profile' 
     });
   }
-};
+}
 
 /**
  * Change user password
  */
-export const changePassword: RequestHandler = async (req, res) => {
+export async function changePassword(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const userId = (req as AuthRequest).user?.userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
-    const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
+    const { currentPassword, newPassword } = req.body;
 
     const result = await UserService.changePassword(userId, currentPassword, newPassword);
 
@@ -147,14 +133,14 @@ export const changePassword: RequestHandler = async (req, res) => {
       message: 'Failed to change password' 
     });
   }
-};
+}
 
 /**
  * Soft delete user account
  */
-export const deleteMyAccount: RequestHandler = async (req, res) => {
+export async function deleteMyAccount(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const userId = (req as AuthRequest).user?.userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
@@ -182,4 +168,4 @@ export const deleteMyAccount: RequestHandler = async (req, res) => {
       message: 'Failed to delete account' 
     });
   }
-};
+}
