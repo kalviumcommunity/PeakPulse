@@ -10,9 +10,12 @@
     "start": "node dist/server.js",
     "migrate": "tsx src/database/migrate.ts",
     "migrate:profile": "tsx src/database/migrations/run_profile_migration.ts",
+    "migrate:indexes": "tsx src/database/migrations/run_performance_indexing.ts",
     "seed": "tsx src/database/seed.ts",
     "seed:prisma": "tsx prisma/seed.ts",
-    "test": "npm run build"
+    "test": "npm run test:all",
+    "test:integration": "tsx src/tests/integration-api.test.ts",
+    "test:all": "tsx src/tests/run-all-tests.ts"
   },
   "keywords": [
     "delivery",

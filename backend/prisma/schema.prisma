@@ -106,6 +106,9 @@ model Delivery {
   @@index([promisedTime])
   @@index([slaBreached])
   @@index([createdAt])
+  @@index([customerZone, assignedAt, slaBreached])
+  @@index([restaurantId, slaBreached])
+  @@index([riderId, slaBreached])
   @@map("deliveries")
 }
 
