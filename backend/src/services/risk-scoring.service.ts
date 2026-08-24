@@ -395,7 +395,7 @@ export class RiskScoringService {
       const { zoneRates, restaurantRates } = await this.getHistoricalStats();
 
       // Score all candidate deliveries
-      let assessments = deliveries.map(d =>
+      let assessments = (deliveries as any[]).map((d: any) =>
         this.calculateRisk(d, {
           zoneBreachRate: zoneRates[d.customerZone] || 0,
           restaurantBreachRate: restaurantRates[d.restaurantId] || 0
@@ -404,11 +404,11 @@ export class RiskScoringService {
 
       // Apply riskLevel filter if specified
       if (riskLevel) {
-        assessments = assessments.filter(a => a.riskLevel === riskLevel);
+        assessments = assessments.filter((a: any) => a.riskLevel === riskLevel);
       }
 
       // Sort by highest risk score first
-      assessments.sort((a, b) => b.riskScore - a.riskScore);
+      assessments.sort((a: any, b: any) => b.riskScore - a.riskScore);
 
       const total = assessments.length;
       const paginated = assessments.slice(offset, offset + limit);
