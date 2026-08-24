@@ -14,6 +14,7 @@ import importRoutes from './routes/import.routes.js';
 import riskRoutes from './routes/risk.routes.js';
 import mlRoutes from './routes/ml.routes.js';
 import alertRoutes from './routes/alert.routes.js';
+import nlpRoutes from './routes/nlp.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { pool } from './database/connection.js';
 
@@ -52,6 +53,7 @@ app.use('/api/analytics', insightsRoutes);
 app.use('/api/risk', riskRoutes);
 app.use('/api/ml', mlRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/nlp', nlpRoutes);
 app.use('/api/riders', riderRoutes);
 app.use('/api/import', importRoutes);
 
