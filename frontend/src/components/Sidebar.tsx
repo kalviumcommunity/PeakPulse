@@ -6,6 +6,7 @@ interface Props {
 
 const NAV = [
   { id: 'dashboard',    label: 'Dashboard'     },
+  { id: 'ml-predictor', label: '🤖 ML Predictor' },
   { id: 'risk-monitor', label: '⚡ SLA Risk Live' },
   { id: 'operations',   label: 'Analytics'     },
   { id: 'zones',        label: 'Zones'         },
