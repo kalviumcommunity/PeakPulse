@@ -21,6 +21,48 @@ export class NLPAnalyticsService {
     const text = prompt.toLowerCase();
 
     // -----------------------------------------------------------------------
+    // SCENARIO 0: CONVERSATIONAL GREETING & ASSISTANT CAPABILITIES
+    // -----------------------------------------------------------------------
+    const trimmed = text.replace(/[^a-z0-9\s]/g, '').trim();
+    if (
+      ['hi', 'hello', 'hey', 'help', 'what can you do', 'good morning', 'good afternoon', 'good evening', 'who are you', 'how are you'].includes(trimmed) ||
+      trimmed.length <= 3
+    ) {
+      const chartData: ChartDataPoint[] = [
+        { label: 'Active Zones Monitored', value: 6, unit: 'zones', color: '#38A89D' },
+        { label: 'Live Orders Scored', value: 520, unit: 'orders', color: '#60A5FA' },
+        { label: 'Active Operational Alerts', value: 3, unit: 'alerts', color: '#EF4444' },
+        { label: 'ML Predictor Accuracy', value: 98.6, unit: '% F1', color: '#F5A623' }
+      ];
+
+      return {
+        query: prompt,
+        intent: 'GENERAL_HELP',
+        answer: `👋 **Hello! I am Pulse AI, your Delivery Operations Intelligence Assistant.**\n\nI can answer free-form questions about zone performance, SLA breach hotspots, merchant prep latency, and courier dispatch velocity. Here are some questions you can ask me:`,
+        queryPlan,
+        generatedSQL: 'SELECT zone, COUNT(*) as total_deliveries, AVG(delay_minutes) FROM deliveries GROUP BY zone;',
+        chartType: 'kpi',
+        chartTitle: 'PeakPulse Operational Telemetry Overview',
+        chartData,
+        keyTakeaways: [
+          '🎯 Ask: *"Which restaurants had the most dinner-time SLA breaches in North Zone?"*',
+          '📈 Ask: *"Compare breach rates across all zones during peak hours"*\n',
+          '🔍 Ask: *"Why did Zone C have so many SLA breaches?"*',
+          '🚴 Ask: *"Show top 5 fastest riders in Zone A"*'
+        ],
+        suggestedFollowUps: [
+          'Which restaurants had the most dinner-time SLA breaches in North Zone?',
+          'Compare breach rates across all zones during peak hours',
+          'Why did Zone C have so many SLA breaches?',
+          'Show active high-risk deliveries in Uptown'
+        ],
+        confidenceScore: 0.99,
+        executionTimeMs: Date.now() - tStart,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // -----------------------------------------------------------------------
     // SCENARIO 1: ROOT CAUSE DIAGNOSIS ("Why did Zone C have so many breaches?")
     // -----------------------------------------------------------------------
     if (
