@@ -380,4 +380,134 @@ export const mlAPI = {
     fetchAPI<{ activeAlgorithm: ModelAlgorithm; modelVersion: string; metrics: MLEvaluationMetrics }>('/ml/model-info')
 };
 
+// ============================================
+// Phase 6: Operational Alerts System
+// ============================================
+
+export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'INFO';
+export type AlertStatus = 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED' | 'DISMISSED';
+export type AlertCategory =
+  | 'ZONE_BREACH_SURGE'
+  | 'RESTAURANT_PREP_DELAY'
+  | 'HIGH_RISK_SURGE'
+  | 'FLEET_SHORTAGE'
+  | 'WEATHER_HAZARD';
+
+export interface AlertMetricSnapshot {
+  currentValue: number;
+  thresholdValue: number;
+  unit: string;
+  comparison: '>' | '>=' | '<' | '<=';
+  deltaPercentage?: number;
+}
+
+export interface OperationalAlert {
+  id: string;
+  ruleId: string;
+  category: AlertCategory;
+  title: string;
+  description: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  zone?: string;
+  restaurantId?: string;
+  restaurantName?: string;
+  metrics: AlertMetricSnapshot;
+  affectedCount: number;
+  recommendedActions: string[];
+  triggeredAt: string;
+  acknowledgedAt?: string;
+  acknowledgedBy?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolutionNotes?: string;
+  rootCause?: string;
+  cooldownUntil?: string;
+}
+
+export interface AlertRuleConfig {
+  id: string;
+  name: string;
+  category: AlertCategory;
+  description: string;
+  severity: AlertSeverity;
+  thresholdValue: number;
+  unit: string;
+  comparison: '>' | '>=' | '<' | '<=';
+  cooldownMinutes: number;
+  enabled: boolean;
+  recommendedActionTemplate: string;
+}
+
+export interface AlertSummaryKPI {
+  totalActive: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  acknowledgedCount: number;
+  resolvedTodayCount: number;
+  meanTimeToAcknowledgeMinutes: number;
+  meanTimeToResolveMinutes: number;
+  categoryBreakdown: {
+    category: AlertCategory;
+    count: number;
+    severity: AlertSeverity;
+  }[];
+}
+
+export const alertsAPI = {
+  getAlerts: (filter: { status?: AlertStatus; severity?: AlertSeverity; category?: AlertCategory; zone?: string; limit?: number; page?: number } = {}) =>
+    fetchAPI<OperationalAlert[]>('/alerts', {
+      params: filter as Record<string, string>
+    }),
+
+  getActive: () =>
+    fetchAPI<OperationalAlert[]>('/alerts/active'),
+
+  getSummary: () =>
+    fetchAPI<AlertSummaryKPI>('/alerts/summary'),
+
+  getById: (id: string) =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}`),
+
+  evaluate: () =>
+    fetchAPI<{ newAlertsCount: number; updatedAlertsCount: number; evaluatedRules: number }>('/alerts/evaluate', {
+      method: 'POST'
+    }),
+
+  acknowledge: (id: string, acknowledgedBy: string = 'Analyst') =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/acknowledge`, {
+      method: 'PATCH',
+      body: JSON.stringify({ acknowledgedBy })
+    }),
+
+  resolve: (id: string, resolutionNotes: string, resolvedBy: string = 'Analyst', rootCause: string = 'OTHER') =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/resolve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ resolvedBy, resolutionNotes, rootCause })
+    }),
+
+  dismiss: (id: string, reason?: string) =>
+    fetchAPI<OperationalAlert>(`/alerts/${id}/dismiss`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason })
+    }),
+
+  getRules: () =>
+    fetchAPI<AlertRuleConfig[]>('/alerts/rules'),
+
+  updateRule: (id: string, updates: Partial<AlertRuleConfig>) =>
+    fetchAPI<AlertRuleConfig>(`/alerts/rules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    }),
+
+  simulate: (dto: { category: AlertCategory; severity?: AlertSeverity; zone?: string; restaurantName?: string; currentValue?: number; thresholdValue?: number; affectedCount?: number }) =>
+    fetchAPI<OperationalAlert>('/alerts/simulate', {
+      method: 'POST',
+      body: JSON.stringify(dto)
+    })
+};
+
+
 
