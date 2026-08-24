@@ -14,11 +14,12 @@ async function runPerformanceIndexing() {
     const sqlPath = path.join(__dirname, 'performance_indexes.sql');
     const sqlContent = fs.readFileSync(sqlPath, 'utf-8');
 
-    // Split SQL into individual statements
-    const statements = sqlContent
+    // Strip comments and split SQL into individual statements
+    const cleanSql = sqlContent.replace(/--.*$/gm, '');
+    const statements = cleanSql
       .split(';')
       .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--'));
+      .filter(s => s.length > 0);
 
     let count = 0;
     for (const stmt of statements) {

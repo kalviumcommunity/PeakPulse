@@ -38,7 +38,7 @@ ON complaints(delivery_id, complaint_type, severity, filed_at);
 
 -- 8. Composite index on Refunds by delivery and processed timestamp
 CREATE INDEX IF NOT EXISTS idx_refunds_composite_perf 
-ON refunds(delivery_id, approved, processed_at);
+ON refunds(delivery_id, refund_type, processed_at);
 
 -- 9. Composite index on Users for active session authentication
 CREATE INDEX IF NOT EXISTS idx_users_email_active 
