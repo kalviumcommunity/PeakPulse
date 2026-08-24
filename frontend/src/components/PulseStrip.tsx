@@ -154,23 +154,30 @@ export default function PulseStrip({ compact = false, cellH }: PulseStripProps) 
         <div style={{
           position: 'fixed',
           left: tip.x,
-          top: tip.y - 44,
+          top: tip.y - 58,
           transform: 'translateX(-50%)',
           zIndex: 200,
-          background: '#1A2336',
-          border: '1px solid #242E40',
-          borderRadius: 4,
-          padding: '6px 10px',
+          background: '#141B27',
+          border: `1px solid ${tip.v > 0.5 ? '#EF4444' : tip.v > 0.25 ? '#F5A623' : '#38A89D'}`,
+          borderRadius: 6,
+          padding: '8px 12px',
           fontSize: 11,
           fontFamily: "'JetBrains Mono', monospace",
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
         }}>
-          <span style={{ color: '#7A8499' }}>{tip.zone} · {String(tip.hour).padStart(2,'0')}:00</span>
-          <span style={{ marginLeft: 10, color: tip.v > 0.5 ? '#F5A623' : '#38A89D', fontWeight: 500 }}>
-            {Math.round(tip.v * 100)}%
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 2 }}>
+            <span style={{ color: '#FFFFFF', fontWeight: 700 }}>{tip.zone}</span>
+            <span style={{ color: '#7A8499' }}>{String(tip.hour).padStart(2,'0')}:00 - {String((tip.hour + 1) % 24).padStart(2,'0')}:00</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ color: tip.v > 0.5 ? '#EF4444' : tip.v > 0.25 ? '#F5A623' : '#38A89D', fontWeight: 700 }}>
+              {Math.round(tip.v * 100)}% Violation Risk
+            </span>
+            <span style={{ color: '#5A6478' }}>•</span>
+            <span style={{ color: '#C4CAD9' }}>~{Math.round(tip.v * 18)} orders affected</span>
+          </div>
         </div>
       )}
     </div>
