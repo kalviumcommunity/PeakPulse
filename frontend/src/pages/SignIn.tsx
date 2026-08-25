@@ -5,6 +5,9 @@ interface Props {
   navigate: (p: string) => void
 }
 
+// Dynamically resolve backend API base URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://peakpulse-ax0h.onrender.com'
+
 export default function SignIn({ onSignIn, navigate }: Props) {
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +21,7 @@ export default function SignIn({ onSignIn, navigate }: Props) {
     setLoading(true)
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
