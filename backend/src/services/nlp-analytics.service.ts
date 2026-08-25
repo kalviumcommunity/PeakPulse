@@ -13,6 +13,100 @@ export class NLPAnalyticsService {
   }
 
   /**
+   * Query Groq Cloud LLM for intelligent semantic analytics
+   */
+  private async queryGroqLLM(prompt: string, queryPlan: any, tStart: number): Promise<NLPQueryResult | null> {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey || apiKey === 'your_groq_api_key_here') return null;
+
+    try {
+      const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+      const systemPrompt = `You are Pulse AI, the AI Delivery Operations Intelligence Assistant for the PeakPulse platform.
+You analyze real-time delivery telemetry across 6 metro zones:
+- Downtown - Zone A (Commercial core, 8.2% breach rate)
+- Midtown - Zone B (Retail corridor, 12.4% breach rate)
+- Uptown - Zone C (Critical operational hotspot, 34.1% breach rate, Taco Fiesta kitchen bottleneck)
+- Suburb - Zone D (Residential, 6.3% breach rate)
+- East - Zone E (Bridge traffic bottleneck, 18.5% breach rate)
+- West - Zone F (Harbor sector, 9.8% breach rate)
+
+Restaurants in the system:
+- Taco Fiesta (avg prep 22.5 min, primary dinner bottleneck in Zone C)
+- Indian Spice (avg prep 19.4 min)
+- Pizza Palace, Sushi Express, Burger Kingdom, Pasta House, Thai Delight, Mexican Grill.
+
+Couriers:
+- Rahul Kumar (Motorcycle, 96.8% on-time)
+- Priya Sharma (Motorcycle, 95.4%)
+- Amit Singh (Scooter, 91.2%)
+- Sneha Reddy (Car, 87.5%)
+- Vikram Patel (Bicycle, 74.2%, struggles on >5km routes)
+
+Respond strictly in JSON format matching this schema:
+{
+  "answer": "Comprehensive, insightful operational markdown answer with bold highlights and data insights",
+  "chartTitle": "Concise title for the visualization chart",
+  "chartType": "bar" | "pie" | "kpi",
+  "chartData": [
+    { "label": "Item name", "value": number, "secondaryValue": number (optional), "unit": "%" | "breaches" | "min" | "orders", "color": "#HEX" }
+  ],
+  "tableData": [
+    { "rank": 1, "restaurant": "Name", "zone": "Zone", "dinnerBreaches": number, "avgPrepTime": "XX min", "primaryCause": "Reason" }
+  ],
+  "keyTakeaways": ["Bullet 1 with actionable insights", "Bullet 2 with operational mitigations", "Bullet 3"],
+  "suggestedFollowUps": ["Follow up question 1", "Follow up question 2", "Follow up question 3"]
+}`;
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.2
+        })
+      });
+
+      if (!response.ok) {
+        console.warn(`Groq API returned HTTP ${response.status}: ${response.statusText}`);
+        return null;
+      }
+
+      const data: any = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) return null;
+
+      const parsed = JSON.parse(content);
+      return {
+        query: prompt,
+        intent: queryPlan.intent || 'METRIC_AGGREGATION',
+        answer: parsed.answer || 'Analytics query executed successfully.',
+        queryPlan,
+        generatedSQL: queryPlan.generatedSQL,
+        chartType: parsed.chartType || 'bar',
+        chartTitle: parsed.chartTitle || 'Operational Telemetry',
+        chartData: Array.isArray(parsed.chartData) ? parsed.chartData : [],
+        tableData: Array.isArray(parsed.tableData) ? parsed.tableData : undefined,
+        keyTakeaways: Array.isArray(parsed.keyTakeaways) ? parsed.keyTakeaways : [],
+        suggestedFollowUps: Array.isArray(parsed.suggestedFollowUps) ? parsed.suggestedFollowUps : [],
+        confidenceScore: 0.98,
+        executionTimeMs: Date.now() - tStart,
+        timestamp: new Date().toISOString()
+      };
+    } catch (err) {
+      console.warn('Groq query failed, falling back to rule-based engine:', err);
+      return null;
+    }
+  }
+
+  /**
    * Main conversational analytical query executor
    */
   public async executeNLPQuery(prompt: string): Promise<NLPQueryResult> {
@@ -61,6 +155,15 @@ export class NLPAnalyticsService {
         timestamp: new Date().toISOString()
       };
     }
+
+    // -----------------------------------------------------------------------
+    // TRY GROQ LLM FOR ADVANCED CONVERSATIONAL & FREE-FORM UNDERSTANDING
+    // -----------------------------------------------------------------------
+    const groqResult = await this.queryGroqLLM(prompt, queryPlan, tStart);
+    if (groqResult) {
+      return groqResult;
+    }
+
 
     // -----------------------------------------------------------------------
     // SCENARIO 1: ROOT CAUSE DIAGNOSIS ("Why did Zone C have so many breaches?")
