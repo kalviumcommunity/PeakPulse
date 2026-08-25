@@ -17,31 +17,7 @@ export default function SignIn({ onSignIn, navigate }: Props) {
     if (!email || !password) { setError('Email and password required.'); return }
     setError('')
     setLoading(true)
-    
-    try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
 
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed');
-      }
-
-      // Store token for API calls
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
-      }
-
-      onSignIn();
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
-      setLoading(false);
-    }
   }
 
   return (
